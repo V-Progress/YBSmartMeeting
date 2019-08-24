@@ -1,0 +1,128 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao' // GreenDao配置
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.yunbiao.yb_smart_meeting"
+        minSdkVersion 22
+        targetSdkVersion 22
+        versionCode 2
+        versionName "1.0.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        flavorDimensions "default"
+        ndk {
+            //设置支持的SO库架构
+            abiFilters 'armeabi' //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 服务地址
+            buildConfigField "String", "HOST", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.PRO_URL"
+            // XMPP端口
+            buildConfigField "String", "XMPP_PORT", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.PRO_XMPP_PORT"
+            // 资源端口
+            buildConfigField "String", "RESOURCE_PORT", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.PRO_RES_PORT"
+            // 资源后缀
+            buildConfigField "String", "SUFFIX", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.PRO_SUFFIX"
+        }
+        debug {
+            minifyEnabled false
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 服务地址
+            buildConfigField "String", "HOST", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.DEV_URL"
+            // XMPP端口
+            buildConfigField "String", "XMPP_PORT", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.DEV_XMPP_PORT"
+            // 资源端口
+            buildConfigField "String", "RESOURCE_PORT", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.DEV_RES_PORT"
+            // 资源后缀
+            buildConfigField "String", "SUFFIX", "com.yunbiao.yb_smart_meeting.afinel.Constants.NetConfig.DEV_SUFFIX"
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    productFlavors {
+        sourceSets {
+            main {
+                jniLibs.srcDirs = ['src/main/jniLibs']
+            }
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "YBSmartMeeting" + defaultConfig.versionName + "." + defaultConfig.versionCode + "_" + buildTime() + ".apk"
+        }
+    }
+    //greenDao配置信息
+    greendao {
+        schemaVersion 17//<--数据库的版本，用于升级时候进行更改
+        daoPackage 'com.yunbiao.yb_smart_meeting.db2'
+//这个是生成DAOs、DaoMaster、DaoSession代码保存的包名,默认为entities所在包名
+        targetGenDir 'src/main/java'
+//生成DAOs、DaoMaster、DaoSession的目录。默认为build/generated/source/greendao
+    }
+
+}
+
+//用于生成时间
+def buildTime() {
+    def date = new Date()
+    //yy年 MM月 dd日 HH小时 mm分钟 ss秒
+    def formattedDate = date.format('yyyyMMddHHmm')
+    return formattedDate
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compileOnly files('lib/classes4.2.jar')
+    implementation files('libs/smdt_v5.1.jar')
+    implementation files('libs/BaiduLBS_Android.jar')
+    implementation files('libs/gson-2.8.5.jar')
+    implementation 'com.roger.match.library:library:1.0.1'
+    implementation 'com.android.support:appcompat-v7:28+'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'com.alibaba:fastjson:1.2.49'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'jp.wasabeef:glide-transformations:2.0.1'
+    implementation 'com.wang.avi:library:1.0.0'
+    implementation 'com.nineoldandroids:library:2.4.0'
+    implementation 'org.xutils:xutils:3.3.36'
+    //bugly
+//    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
+//    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
+    //umeng
+//    implementation 'com.umeng.umsdk:analytics:7.5.4'
+//    implementation 'com.umeng.umsdk:common:1.5.4'
+    implementation 'com.zhy:okhttputils:2.6.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    //京东人脸库
+    implementation files('libs/core-3.0.0.jar')
+    implementation fileTree(includes: ['android_sdk-release.aar'], dir: 'libs')
+    implementation fileTree(includes: ['FaceLocalSDK-release_201906101703.aar'], dir: 'libs')
+    implementation 'com.android.support:recyclerview-v7:28+'
+    testImplementation 'junit:junit:4.12'
+    //圆形图
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
+    // GreenDao(√)
+    implementation 'org.greenrobot:greendao:3.2.2'
+    implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v1.4.0'
+    implementation files('libs/XHApi.jar')
+
+    implementation 'io.reactivex.rxjava2:rxjava:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+}

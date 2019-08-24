@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">云标智能会议</string>
+    <string name="used">已用:</string>
+    <string name="no_used">/可用:</string>
+
+    <string name="System_deviceNo">设备编号:</string>
+    <string name="System_bindCode">绑&#8194;&#8194;定&#8194;&#8194;码:</string>
+    <string name="System_Company">所属公司:</string>
+    <string name="System_Service">服务网络:</string>
+    <string name="System_ValiDate">有&#8194;&#8194;效&#8194;&#8194;期:</string>
+    <string name="System_Manage">人员管理</string>
+    <string name="System_Add">新增员工</string>
+    <string name="System_Record">离线数据</string>
+    <string name="System_Setting">系统设置</string>
+
+    <string name="System_Service_offline">离线</string>
+
+    <!--人员管理-->
+    <string name="employ_list_depart_sync">同步</string>
+    <string name="employ_list_field_index">序号</string>
+    <string name="employ_list_field_number">员工编号</string>
+    <string name="employ_list_field_name">员工名</string>
+    <string name="employ_list_field_position">职位</string>
+    <string name="employ_list_field_control">操作</string>
+
+    <!--新增员工-->
+
+    <string name="employ_add_confirm">确定</string>
+    <string name="employ_add_cancel">取消</string>
+
+    <!--离线数据-->
+    <string name="sign_list_filed_index">编号</string>
+    <string name="sign_list_filed_head">头像</string>
+
+    <!--设置-->
+
+</resources>
