@@ -18,34 +18,44 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.jdjr.risk.face.local.user.FaceUser;
+import com.jdjr.risk.face.local.user.FaceUserManager;
 import com.jdjr.risk.face.local.verify.VerifyResult;
 import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.R;
-import com.yunbiao.yb_smart_meeting.activity.Event.IntroduceUpdateEvent;
 import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
-import com.yunbiao.yb_smart_meeting.activity.fragment.ScreenSaveFragment;
+import com.yunbiao.yb_smart_meeting.activity.fragment.IntroFragment;
+import com.yunbiao.yb_smart_meeting.activity.fragment.RecordFragment;
+import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
+import com.yunbiao.yb_smart_meeting.bean.CompanyBean;
+import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.business.LocateManager;
 import com.yunbiao.yb_smart_meeting.business.MeetingManager;
+import com.yunbiao.yb_smart_meeting.business.RecordManager;
 import com.yunbiao.yb_smart_meeting.business.ResourceCleanManager;
-import com.yunbiao.yb_smart_meeting.business.PassageManager;
-import com.yunbiao.yb_smart_meeting.business.Speecher;
-import com.yunbiao.yb_smart_meeting.business.SyncManager;
-import com.yunbiao.yb_smart_meeting.business.VerifyTips;
-import com.yunbiao.yb_smart_meeting.business.VisitorManager;
 import com.yunbiao.yb_smart_meeting.common.UpdateVersionControl;
-import com.yunbiao.yb_smart_meeting.db2.PassageBean;
+import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
+import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
 import com.yunbiao.yb_smart_meeting.faceview.FaceResult;
 import com.yunbiao.yb_smart_meeting.faceview.FaceView;
+import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
 import com.yunbiao.yb_smart_meeting.utils.RestartAPPTool;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 import com.yunbiao.yb_smart_meeting.xmpp.ServiceManager;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.Call;
 
 /**
  * Created by Administrator on 2018/11/26.
@@ -61,7 +71,11 @@ public class WelComeActivity extends BaseGpioActivity {
 
     //摄像头分辨率
     private FaceView faceView;
-    private ScreenSaveFragment adsFragment;
+    private RecordFragment recordFragment;
+    private ImageView ivHead;
+    private View aivLoading;
+    private TextView tvPersonName;
+    private ImageView ivMainCode;
 
     @Override
     protected String setTitle() {
@@ -97,11 +111,19 @@ public class WelComeActivity extends BaseGpioActivity {
         ivMainLogo = findViewById(R.id.iv_main_logo);
         tvMainAbbName = findViewById(R.id.tv_main_abbname);
 
-        //加载广告Fragment
-        adsFragment = new ScreenSaveFragment();
-        addFragment(R.id.ll_face_main, adsFragment);
+        ivMainCode = find(R.id.iv_main_code);
+        ivHead = find(R.id.iv_person_head);
+        aivLoading = find(R.id.aiv_person_loading);
+        tvPersonName = find(R.id.tv_person_name);
+        aivLoading = find(R.id.av_loading);
 
-//        VerifyTips.instance().init(this);
+        //记录Fragment
+        recordFragment = new RecordFragment();
+        addFragment(R.id.fl_record_container, recordFragment);
+
+        //宣传
+        IntroFragment introFragment = new IntroFragment();
+        addFragment(R.id.fl_introduce_container,introFragment);
     }
 
     @Override
@@ -112,10 +134,6 @@ public class WelComeActivity extends BaseGpioActivity {
         //初始化定位工具
         LocateManager.instance().init(this);
 
-        setCompInfo();
-
-        MeetingManager.getInstance().init();
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -125,14 +143,19 @@ public class WelComeActivity extends BaseGpioActivity {
         }, 5 * 1000);
     }
 
-    private long mCurrFaceId = 0;
+    boolean isInited = false;
 
     /*人脸识别回调，由上到下执行*/
     private FaceView.FaceCallback faceCallback = new FaceView.FaceCallback() {
         @Override
         public void onReady() {
-
+            if(isInited){
+                return;
+            }
+            loadCompany();
+            RecordManager.get();
             ResourceCleanManager.instance().startAutoCleanService();
+            isInited = true;
         }
 
         @Override
@@ -140,19 +163,7 @@ public class WelComeActivity extends BaseGpioActivity {
             if (isAlwayOpen()) {
                 return;
             }
-            if (adsFragment != null) {
-                adsFragment.detectFace();
-            }
-
-            long faceId = result.getBaseProperty().getFaceId();
-
-            if (mCurrFaceId != faceId) {
-                Log.e(TAG, "onFaceDetection: ----- " + mCurrFaceId + "---" + faceId);
-                mCurrFaceId = faceId;
-//                VerifyTips.instance().showMyTips(VerifyTips.CHECK_ING);
-            }
             onLight();
-//            VerifyTips.instance().showFaceLoading();
         }
 
         @Override
@@ -160,62 +171,96 @@ public class WelComeActivity extends BaseGpioActivity {
             if (isAlwayOpen()) {
                 return;
             }
-            PassageManager.instance().checkSign(verifyResult);
+
+            RecordManager.get().checkPassage(verifyResult);
         }
     };
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(IntroduceUpdateEvent updateEvent) {
+    public void update(RecordInfo event) {
+        Log.e(TAG, "update: 收到签到更新事件" +event.toString() );
+
+        recordFragment.addRecord(event);
+        Glide.with(this).load(event.getHeadPath()).asBitmap().into(ivHead);
+        tvPersonName.setText(event.getName());
+
+        ivHead.removeCallbacks(resetRunnable);
+        ivHead.postDelayed(resetRunnable,3 * 1000);
     }
 
-    private SyncManager.LoadListener loadListener = new SyncManager.LoadListener() {
+    private Runnable resetRunnable = new Runnable() {
         @Override
-        public void onLoaded() {
-            EventBus.getDefault().postSticky(new SysInfoUpdateEvent());
-
-            PassageManager.instance().init(WelComeActivity.this, signEventListener);
-
-            setCompInfo();
-
-            VisitorManager.instance();
-        }
-
-        @Override
-        public void onLogoLoded() {
-            setCompInfo();
-        }
-
-        @Override
-        public void onFinish() {
+        public void run() {
+            Glide.with(WelComeActivity.this).load(R.mipmap.img_noface).asBitmap().into(ivHead);
+            tvPersonName.setText("");
         }
     };
 
-    private PassageManager.SignEventListener signEventListener = new PassageManager.SignEventListener() {
-        @Override
-        public void onNotTime(int timeTag, PassageBean passageBean) {
-            String tips;
-            if(timeTag == -1){
-                tips = VerifyTips.CHECK_FAILED_NOTINTIME;
-            } else {
-                tips = VerifyTips.CHECK_FAILED_EXPIRE;
+    private void loadCompany(){
+        final Map<String, String> map = new HashMap<>();
+        String deviceNo = HeartBeatClient.getDeviceNo();
+        Log.e(TAG, "loadCompany: " + deviceNo);
+        map.put("deviceNo", deviceNo);
+        OkHttpUtils.post().params(map).tag(this).url(ResourceUpdate.COMPANYINFO).build().execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+
             }
-//            VerifyTips.instance().showMyTips(tips);
-            Speecher.speech(tips);
-        }
 
-        @Override
-        public void onPass(PassageBean passageBean) {
-//            VerifyTips.instance().showMyTips(passageBean.getUserType(),passageBean.getName(), VerifyTips.CHECK_SUCC,passageBean.getHeadPath());
-            openDoor();
-            Speecher.speech("您好 " + passageBean.getName());
-        }
+            @Override
+            public void onResponse(String response, int id) {
+                Log.e(TAG, "onResponse: ----- " + response);
+                if(TextUtils.isEmpty(response)){
+                    return;
+                }
+                CompanyBean companyBean = new Gson().fromJson(response, CompanyBean.class);
 
-        @Override
-        public void onVerifyFailed() {
-//            VerifyTips.instance().showMyTips(VerifyTips.CHECK_FAILED);
-            Speecher.speech(VerifyTips.CHECK_FAILED);
+                int comid = companyBean.getCompany().getComid();
+                String name = companyBean.getCompany().getComname();
+                String pwd = companyBean.getCompany().getDevicePwd();
+                String logoUrl = companyBean.getCompany().getComlogo();
+
+                //保存系统信息
+                saveCompanyInfo(comid,name,pwd,logoUrl);
+
+                //发送更新事件
+                EventBus.getDefault().postSticky(new SysInfoUpdateEvent());
+
+                //初始化会议信息
+                MeetingManager.getInstance().init();
+            }
+        });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void update(MeetingEvent event) {
+        aivLoading.setVisibility(View.VISIBLE);
+        Log.e(TAG, "update: 收到会议更新事件" );
+        int state = event.getState();
+        final MeetInfo meetInfo = event.getMeetInfo();
+        switch (state) {
+            case MeetingEvent.PRELOADING:
+                break;
+            case MeetingEvent.BEGINED:
+                Glide.with(this).load(meetInfo.getCodeUrl()).asBitmap().into(ivMainCode);
+                d("会议已开始，添加用户");
+                RecordManager.get().setEntryList(meetInfo);
+                break;
+            case MeetingEvent.END:
+
+                break;
         }
-    };
+        aivLoading.setVisibility(View.GONE);
+    }
+
+    private void saveCompanyInfo(int id, String name, String pwd,String logoUrl) {
+        SpUtils.saveInt(SpUtils.COMPANY_ID, id);
+        SpUtils.saveStr(SpUtils.COMPANY_NAME, name);
+        SpUtils.saveStr(SpUtils.MENU_PWD, pwd);
+
+        if (!TextUtils.isEmpty(name)) tvMainAbbName.setText(name);
+        Glide.with(this).load(logoUrl).asBitmap().into(ivMainLogo);
+    }
 
     private void startXmpp() {//开启xmpp
         serviceManager = new ServiceManager(this);
@@ -227,16 +272,6 @@ public class WelComeActivity extends BaseGpioActivity {
             serviceManager.stopService();
             serviceManager = null;
         }
-    }
-
-    private void setCompInfo() {
-        String compName = SpUtils.getStr(SpUtils.COMPANY_NAME);
-        String logoPath = SpUtils.getStr(SpUtils.COMPANY_LOGO);
-
-        if (!TextUtils.isEmpty(compName)) tvMainAbbName.setText(compName);
-
-        if (!TextUtils.isEmpty(logoPath) && new File(logoPath).exists())
-            bindImageView(logoPath, ivMainLogo);
     }
 
     //密码弹窗

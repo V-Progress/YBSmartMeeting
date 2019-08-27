@@ -78,7 +78,6 @@
         <activity android:name="com.yunbiao.yb_smart_meeting.activity.EmployListActivity" />
         <activity android:name="com.yunbiao.yb_smart_meeting.activity.SignActivity" /> <!-- 开机自动重启 -->
         <activity android:name="com.yunbiao.yb_smart_meeting.activity.SystemActivity" />
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.IntroduceActivity" />
         <activity android:name="com.yunbiao.yb_smart_meeting.activity.VisitorActivity" />
         <!--<activity-->
             <!--android:name="com.tencent.bugly.beta.ui.BetaActivity"-->

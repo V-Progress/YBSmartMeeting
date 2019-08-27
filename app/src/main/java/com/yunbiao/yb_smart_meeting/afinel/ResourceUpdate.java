@@ -29,6 +29,7 @@ public class ResourceUpdate {
     public static String VISITOR_RECORD = WEB_BASE_URL + "api/visitor/signUpload.html";//获取访客
     public static String GET_AIRINFO = "";
     public static String GET_INTRODUCE = WEB_BASE_URL + "api/propa/getAll.html";
+    public static String SEND_RECORD = WEB_BASE_URL + "api/meetWitLog/check.html";
 
     public static String UPDATE_DEVICE_TYPE = WEB_BASE_URL + "api/device/updateDeviceType.html";
 

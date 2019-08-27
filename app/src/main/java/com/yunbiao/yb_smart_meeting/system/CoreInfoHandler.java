@@ -5,13 +5,10 @@ import android.util.Log;
 
 
 import com.google.gson.Gson;
-import com.yunbiao.yb_smart_meeting.activity.Event.AdsUpdateEvent;
 import com.yunbiao.yb_smart_meeting.activity.Event.GpioEvent;
 import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
-import com.yunbiao.yb_smart_meeting.activity.fragment.ResourceResolver;
 import com.yunbiao.yb_smart_meeting.bean.XmppLoginMessage;
-import com.yunbiao.yb_smart_meeting.business.SyncManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.common.MachineDetial;
 import com.yunbiao.yb_smart_meeting.common.SoundControl;
@@ -19,14 +16,11 @@ import com.yunbiao.yb_smart_meeting.common.UpdateVersionControl;
 import com.yunbiao.yb_smart_meeting.common.power.PowerOffTool;
 import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.utils.*;
-import com.yunbiao.yb_smart_meeting.utils.CommonUtils;
 import com.yunbiao.yb_smart_meeting.utils.logutils.LogUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import okhttp3.Call;
 
@@ -98,7 +92,7 @@ public class CoreInfoHandler {
                 //初始化同步
                 int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
                 if (comId == 0) {
-                    SyncManager.instance().initInfo();
+
                 }
                 break;
             case VOICE_TYPE:// 声音控制
@@ -167,10 +161,8 @@ public class CoreInfoHandler {
                 UpdateVersionControl.getInstance().checkUpdate(activity);
                 break;
             case ADS_PUSH:
-                EventBus.getDefault().postSticky(new AdsUpdateEvent());
                 break;
             case UPDATE_STAFF:
-                SyncManager.instance().initInfo();
                 break;
             case OPEN_DOOR:
                 EventBus.getDefault().postSticky(new GpioEvent(GpioEvent.OPEN));
@@ -182,10 +174,8 @@ public class CoreInfoHandler {
                 SpUtils.saveBoolean(SpUtils.DOOR_STATE, newState);
                 break;
             case UPDATE_COMPANY:
-                SyncManager.instance().loadCompany(false);
                 break;
             case UPDATE_INTRODUCE:
-                ResourceResolver.instance().init();
                 break;
             default:
                 break;

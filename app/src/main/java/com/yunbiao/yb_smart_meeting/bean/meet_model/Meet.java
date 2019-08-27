@@ -11,16 +11,16 @@ import java.util.List;
 public class Meet {
 
     private List<AdvertInfo> advertArray;
-    private List<EntryInfo> entryInfoArray;
-    private List<FlowInfo> flowInfoArray;
+    private List<EntryInfo> entryArray;
+    private List<FlowInfo> flowArray;
     private MeetInfo meetInfo;
 
     @Override
     public String toString() {
         return "Meet{" +
                 "advertArray=" + advertArray +
-                ", entryInfoArray=" + entryInfoArray +
-                ", flowInfoArray=" + flowInfoArray +
+                ", entryArray=" + entryArray +
+                ", flowArray=" + flowArray +
                 ", meetInfo=" + meetInfo +
                 '}';
     }
@@ -33,20 +33,20 @@ public class Meet {
         this.advertArray = advertArray;
     }
 
-    public List<EntryInfo> getEntryInfoArray() {
-        return entryInfoArray;
+    public List<EntryInfo> getEntryArray() {
+        return entryArray;
     }
 
-    public void setEntryInfoArray(List<EntryInfo> entryInfoArray) {
-        this.entryInfoArray = entryInfoArray;
+    public void setEntryArray(List<EntryInfo> entryArray) {
+        this.entryArray = entryArray;
     }
 
-    public List<FlowInfo> getFlowInfoArray() {
-        return flowInfoArray;
+    public List<FlowInfo> getFlowArray() {
+        return flowArray;
     }
 
-    public void setFlowInfoArray(List<FlowInfo> flowInfoArray) {
-        this.flowInfoArray = flowInfoArray;
+    public void setFlowArray(List<FlowInfo> flowArray) {
+        this.flowArray = flowArray;
     }
 
     public MeetInfo getMeetInfo() {

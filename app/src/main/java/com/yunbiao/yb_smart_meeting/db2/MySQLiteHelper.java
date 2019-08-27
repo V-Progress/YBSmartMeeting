@@ -5,9 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
-import com.yunbiao.yb_smart_passage.db2.EntryInfoDao;
-import com.yunbiao.yb_smart_passage.db2.FlowInfoDao;
-import com.yunbiao.yb_smart_passage.db2.MeetInfoDao;
 
 public class MySQLiteHelper extends DaoMaster.OpenHelper {
     private static final String TAG = "MySQLiteHelper";
@@ -34,6 +31,7 @@ public class MySQLiteHelper extends DaoMaster.OpenHelper {
         MigrationHelper.migrate(db, EntryInfoDao.class);
         MigrationHelper.migrate(db, FlowInfoDao.class);
         MigrationHelper.migrate(db, AdvertInfoDao.class);
+        MigrationHelper.migrate(db, RecordInfoDao.class);
     }
 
     private void d(String msg) {

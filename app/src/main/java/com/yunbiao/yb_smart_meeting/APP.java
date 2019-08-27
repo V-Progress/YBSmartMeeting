@@ -57,7 +57,7 @@ public class APP extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        initCompanyId();
+//        initCompanyId();
 
         initGpio();
 

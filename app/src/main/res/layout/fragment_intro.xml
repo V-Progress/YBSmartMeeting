@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@mipmap/frame_introduce"
+    android:padding="5dp"
+    android:layout_height="match_parent">
+
+    <com.yunbiao.yb_smart_meeting.views.VerticalViewPager
+        android:id="@+id/vvp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:text="暂无会议"
+        android:gravity="center"
+        android:background="#74000000"
+        android:id="@+id/tv_meeting_name"
+        android:layout_centerInParent="true"
+        android:textSize="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <com.wang.avi.AVLoadingIndicatorView
+        android:visibility="visible"
+        android:layout_centerInParent="true"
+        android:id="@+id/av_loading"
+        android:layout_width="200dp"
+        android:layout_height="match_parent" />
+
+
+
+</RelativeLayout>

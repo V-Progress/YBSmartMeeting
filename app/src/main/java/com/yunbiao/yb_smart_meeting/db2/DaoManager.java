@@ -1,5 +1,6 @@
 package com.yunbiao.yb_smart_meeting.db2;
 
+import android.content.pm.UserInfo;
 import android.util.Log;
 
 import com.yunbiao.yb_smart_meeting.APP;
@@ -76,6 +77,48 @@ public class DaoManager {
             return null;
         }
         return daoSession.loadAll(clazz);
+    }
+
+    public List<RecordInfo> queryRecordByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.MeetId.eq(meetId)).list();
+    }
+
+
+    public List<EntryInfo> queryEntryInfoByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.MeetId.eq(meetId)).list();
+    }
+
+
+    public EntryInfo queryEntryInfoById(long id){
+        if(daoMaster == null){
+            return null;
+        }
+        List<EntryInfo> list = daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.Id.eq(id)).list();
+        if(list == null || list.size()<=0){
+            return null;
+        }
+        return list.get(0);
+    }
+
+    public List<RecordInfo> queryRecordByUpload(boolean isUpload){
+        if(daoSession == null){
+            return null;
+        }
+        return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.IsUpload.eq(isUpload)).list();
+    }
+
+    public List<AdvertInfo> queryAdvertByMeetId(long id){
+        if(daoSession == null){
+            return null;
+        }
+        return daoSession.getAdvertInfoDao().queryBuilder().where(AdvertInfoDao.Properties.MeetId.eq(id)).list();
+
     }
 
     public <T> List<T> queryById(Class<T> t, String id){

@@ -11,6 +11,7 @@ import com.yunbiao.yb_smart_meeting.APP;
 public class SpUtils {
     public static final String DOOR_STATE = "doorState";//门禁常开模式
     public static final String COMPANY_INTRO = "companyIntro";
+    public static final String MEETING_CACHE = "meetingCache";
     private static SharedPreferences sp;
     private static final String SP_NAME = "YB_FACE";
 

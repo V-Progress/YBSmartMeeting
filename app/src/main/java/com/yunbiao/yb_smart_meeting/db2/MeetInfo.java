@@ -19,10 +19,12 @@ public class MeetInfo {
     private String name;
     private String theme;
     private String userName;
+    private String codeUrl;
 
-    @Generated(hash = 836387009)
+    @Generated(hash = 1498060763)
     public MeetInfo(long id, String beginTime, String endTime, long meetRoomId,
-            String meetRoomName, String name, String theme, String userName) {
+            String meetRoomName, String name, String theme, String userName,
+            String codeUrl) {
         this.id = id;
         this.beginTime = beginTime;
         this.endTime = endTime;
@@ -31,6 +33,7 @@ public class MeetInfo {
         this.name = name;
         this.theme = theme;
         this.userName = userName;
+        this.codeUrl = codeUrl;
     }
 
     @Generated(hash = 1707028029)
@@ -40,15 +43,24 @@ public class MeetInfo {
     @Override
     public String toString() {
         return "MeetInfo{" +
-                "beginTime='" + beginTime + '\'' +
+                "id=" + id +
+                ", beginTime='" + beginTime + '\'' +
                 ", endTime='" + endTime + '\'' +
-                ", id=" + id +
                 ", meetRoomId=" + meetRoomId +
                 ", meetRoomName='" + meetRoomName + '\'' +
                 ", name='" + name + '\'' +
                 ", theme='" + theme + '\'' +
                 ", userName='" + userName + '\'' +
+                ", codeUrl='" + codeUrl + '\'' +
                 '}';
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getBeginTime() {
@@ -65,14 +77,6 @@ public class MeetInfo {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getMeetRoomId() {
@@ -113,5 +117,13 @@ public class MeetInfo {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getCodeUrl() {
+        return codeUrl;
+    }
+
+    public void setCodeUrl(String codeUrl) {
+        this.codeUrl = codeUrl;
     }
 }
