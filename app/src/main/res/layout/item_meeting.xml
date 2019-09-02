@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/ll_root"
+    android:layout_height="150dp">
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <TextView
+            android:text="会议名称"
+            android:gravity="center"
+            android:textSize="26dp"
+            android:textColor="#60DBF7"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <View
+            android:background="#60DBF7"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/tv_meeting_name"
+            android:maxLines="1"
+            android:gravity="center"
+            android:textSize="26dp"
+            android:textColor="@color/white"
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <View
+            android:background="#60DBF7"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:gravity="center"
+            android:textSize="26dp"
+            android:textColor="#60DBF7"
+            android:text="参会人数"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <View
+            android:background="#60DBF7"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/tv_meeting_number"
+            android:gravity="center"
+            android:textSize="26dp"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <View
+        android:background="#60DBF7"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <TextView
+            android:gravity="center"
+            android:textSize="26dp"
+            android:textColor="#60DBF7"
+            android:text="会议时间"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <View
+            android:background="#60DBF7"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:id="@+id/tv_meeting_begin"
+            android:gravity="center|right"
+            android:textSize="26dp"
+            android:textColor="@color/white"
+            android:layout_weight="2.3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="~"
+            android:textSize="26dp"
+            android:textColor="@color/white"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_meeting_end"
+            android:gravity="center|left"
+            android:textSize="26dp"
+            android:textColor="@color/white"
+            android:layout_weight="2.3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <View
+        android:background="#60DBF7"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+</LinearLayout>

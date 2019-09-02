@@ -24,18 +24,19 @@ import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class RecordFragment extends Fragment {
+public class RecordFragment extends BaseFragment {
     private static final String TAG = "RecordFragment";
-    private MeetInfo mMeetInfo;
+    //    private MeetInfo mMeetInfo;
     private View rootView;
     private RecyclerView recyclerView;
     private TextView tvAlready;
@@ -47,8 +48,7 @@ public class RecordFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        EventBus.getDefault().register(this);
-        rootView = View.inflate(container.getContext(), R.layout.fragment_record,null);
+        rootView = View.inflate(container.getContext(), R.layout.fragment_record, null);
         return rootView;
     }
 
@@ -56,12 +56,17 @@ public class RecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView();
-        initData();
     }
 
-    private void initView(){
-        recyclerView = rootView.findViewById(R.id.rlv_record);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), OrientationHelper.HORIZONTAL,false));
+    @Override
+    protected int setLayout() {
+        return R.layout.fragment_record;
+    }
+
+    @Override
+    protected void initView() {
+        recyclerView = find(R.id.rlv_record);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), OrientationHelper.HORIZONTAL, false));
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
@@ -71,90 +76,92 @@ public class RecordFragment extends Fragment {
         signAdapter = new SignAdapter(getActivity(), this.mRecordList);
         recyclerView.setAdapter(signAdapter);
 
+        tvAlready = find(R.id.tv_already);
+        tvShould = find(R.id.tv_should);
+    }
 
-        tvAlready = rootView.findViewById(R.id.tv_already);
-        tvShould = rootView.findViewById(R.id.tv_should);
+    @Override
+    protected void initData() {
+        showLoading();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MeetingEvent event) {
-        Log.e(TAG, "update: 收到会议更新事件" );
+        Log.e(TAG, "update: 收到会议更新事件");
         int state = event.getState();
         switch (state) {
-            case MeetingEvent.PRELOADING:
-
+            case MeetingEvent.GET_MEETING_FAILED:
+            case MeetingEvent.NO_MEETING:
+                showTips("暂无会议");
                 break;
-            case MeetingEvent.BEGINED:
-                mMeetInfo = event.getMeetInfo();
-                initData();
-                break;
-            case MeetingEvent.END:
-
+            case MeetingEvent.PRELOAD:
+            case MeetingEvent.BEGAN:
+                initData(event.getMeetInfo());
                 break;
         }
     }
 
-    private void initData(){
-        if(mMeetInfo == null){
-            return;
-        }
-        long id = mMeetInfo.getId();
+    private void initData(MeetInfo meetInfo) {
+        long id = meetInfo.getId();
 
         List<RecordInfo> recordInfos = DaoManager.get().queryRecordByMeetId(id);
         List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(id);
+        Collections.sort(recordInfos, new Comparator<RecordInfo>() {
+            @Override
+            public int compare(RecordInfo o1, RecordInfo o2) {
+                //倒序：左大于右返回正值
+                return o1.getTime() < o2.getTime() ? 1 : o1.getTime() > o2.getTime() ? -1 : 0;
+            }
+        });
 
         currNumberList.clear();
         mRecordList.clear();
-        if(recordInfos != null){
+        if (recordInfos != null) {
             mRecordList.addAll(recordInfos);
         }
         signAdapter.notifyDataSetChanged();
 
-        intNumber(recordInfos,entryInfos);
+        hideLoadingAndTips();
+
+        intNumber(recordInfos, entryInfos);
     }
 
-    private void intNumber(List<RecordInfo> recordInfos,List<EntryInfo> entryInfos){
+    private void intNumber(List<RecordInfo> recordInfos, List<EntryInfo> entryInfos) {
         int size = recordInfos == null ? 0 : recordInfos.size();
         int total = entryInfos == null ? 0 : entryInfos.size();
         Log.e(TAG, "initData: ---- " + size + " --- " + total);
 
-        if(recordInfos != null){
+        if (recordInfos != null) {
             for (RecordInfo recordInfo : recordInfos) {
                 addNumber(recordInfo);
             }
         }
-        tvShould.setText(entryInfos.size()+"");
+        tvShould.setText(entryInfos.size() + "");
     }
 
-    private void addNumber(RecordInfo recordInfo){
-        if(!currNumberList.contains(recordInfo.getMeetEntryId())){
+    private void addNumber(RecordInfo recordInfo) {
+        if (!currNumberList.contains(recordInfo.getMeetEntryId())) {
             currNumberList.add(recordInfo.getMeetEntryId());
-            tvAlready.setText(currNumberList.size()+"");
+            tvAlready.setText(currNumberList.size() + "");
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     public void addRecord(final RecordInfo recordInfo) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mRecordList.add(0,recordInfo);
+                mRecordList.add(0, recordInfo);
                 signAdapter.notifyDataSetChanged();
                 addNumber(recordInfo);
             }
         });
     }
 
-    class SignAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    class SignAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<RecordInfo> signBeanList;
         private DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-        public SignAdapter(Context context,List<RecordInfo> signBeanList) {
+        public SignAdapter(Context context, List<RecordInfo> signBeanList) {
             this.signBeanList = signBeanList;
         }
 
@@ -181,10 +188,11 @@ public class RecordFragment extends Fragment {
             return signBeanList.size();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder{
+        class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivHead;
             TextView tvName;
             TextView tvTime;
+
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 ivHead = itemView.findViewById(R.id.iv_head);

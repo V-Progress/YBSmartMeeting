@@ -2,15 +2,21 @@ package com.yunbiao.yb_smart_meeting.activity.Event;
 
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 
+import java.util.Objects;
+
 public class MeetingEvent {
-    public static final int NO_MEETING = -1;
-    public static final int INIT = 0;
-    public static final int PRELOADING = 1;
-    public static final int BEGINED = 2;
-    public static final int END = 3;
+    public static final int GET_MEETING_FAILED = -2;
+    public static final int NO_MEETING = -1;//没有会议
+    public static final int PRELOAD = 0;//预加载
+    public static final int BEGAN = 1;//已开始
+    public static final int ENDED = 2;//已结束
 
     private int state;
     private MeetInfo meetInfo;
+
+    public MeetingEvent(int state) {
+        this.state = state;
+    }
 
     public MeetingEvent(int state, MeetInfo meetInfo) {
         this.state = state;
@@ -31,5 +37,27 @@ public class MeetingEvent {
 
     public void setMeetInfo(MeetInfo meetInfo) {
         this.meetInfo = meetInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "MeetingEvent{" +
+                "state=" + state +
+                ", meetInfo=" + meetInfo +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MeetingEvent that = (MeetingEvent) o;
+        return state == that.state &&
+                meetInfo.equals(that.meetInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, meetInfo);
     }
 }

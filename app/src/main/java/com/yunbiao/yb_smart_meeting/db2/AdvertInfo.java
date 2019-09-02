@@ -17,15 +17,26 @@ public class AdvertInfo{
 
     private String path;
 
-    @Generated(hash = 1696909390)
+    private long readNum;
+    private long goodNum;
+
+    private int time;
+
+    private String shareUrl;
+
+    @Generated(hash = 1237662108)
     public AdvertInfo(long id, long meetId, int type, String url, int advertId,
-            String path) {
+            String path, long readNum, long goodNum, int time, String shareUrl) {
         this.id = id;
         this.meetId = meetId;
         this.type = type;
         this.url = url;
         this.advertId = advertId;
         this.path = path;
+        this.readNum = readNum;
+        this.goodNum = goodNum;
+        this.time = time;
+        this.shareUrl = shareUrl;
     }
 
     @Generated(hash = 1146491101)
@@ -41,7 +52,43 @@ public class AdvertInfo{
                 ", url='" + url + '\'' +
                 ", advertId=" + advertId +
                 ", path='" + path + '\'' +
+                ", readNum=" + readNum +
+                ", goodNum=" + goodNum +
+                ", time=" + time +
+                ", shareUrl='" + shareUrl + '\'' +
                 '}';
+    }
+
+    public String getShareUrl() {
+        return shareUrl;
+    }
+
+    public void setShareUrl(String shareUrl) {
+        this.shareUrl = shareUrl;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public long getReadNum() {
+        return readNum;
+    }
+
+    public void setReadNum(long readNum) {
+        this.readNum = readNum;
+    }
+
+    public long getGoodNum() {
+        return goodNum;
+    }
+
+    public void setGoodNum(long goodNum) {
+        this.goodNum = goodNum;
     }
 
     public long getId() {

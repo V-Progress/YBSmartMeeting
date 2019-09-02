@@ -107,7 +107,7 @@ public class ExtCameraManager {
      */
     public void init(SurfaceView rgbSurface, SurfaceView nirSurface){
         rgbSurface.getHolder().addCallback(rgbCallback);
-        nirSurface.getHolder().addCallback(nirCallback);
+//        nirSurface.getHolder().addCallback(nirCallback);
     }
 
 //    public void init(SurfaceView rgbSurface){
@@ -124,7 +124,7 @@ public class ExtCameraManager {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mRGBCamera = doOpenCamera(CameraType.getNIR(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mRGBCallback);
+                    mRGBCamera = doOpenCamera(CameraType.getRGB(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mRGBCallback);
                 }
             });
         }
@@ -146,7 +146,7 @@ public class ExtCameraManager {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mNIRCamera = doOpenCamera(CameraType.getRGB(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mNIRCallback);
+                    mNIRCamera = doOpenCamera(CameraType.getNIR(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mNIRCallback);
                 }
             });
         }

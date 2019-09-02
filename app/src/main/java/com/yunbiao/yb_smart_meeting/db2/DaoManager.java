@@ -94,6 +94,13 @@ public class DaoManager {
         return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.MeetId.eq(meetId)).list();
     }
 
+    public List<FlowInfo> queryFlowByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getFlowInfoDao().queryBuilder().where(FlowInfoDao.Properties.MeetId.eq(meetId)).list();
+    }
+
 
     public EntryInfo queryEntryInfoById(long id){
         if(daoMaster == null){

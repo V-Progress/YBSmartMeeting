@@ -30,6 +30,8 @@ public class ResourceUpdate {
     public static String GET_AIRINFO = "";
     public static String GET_INTRODUCE = WEB_BASE_URL + "api/propa/getAll.html";
     public static String SEND_RECORD = WEB_BASE_URL + "api/meetWitLog/check.html";
+    public static String CLICK_THUMBS = WEB_BASE_URL + "api/meet/goodAdvert.html";
+    public static String UPDATE_WATCH = WEB_BASE_URL + "api/meet/readAdvert.html";
 
     public static String UPDATE_DEVICE_TYPE = WEB_BASE_URL + "api/device/updateDeviceType.html";
 

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_height="80dp">
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="10dp"
+        android:maxLines="1"
+        android:gravity="center_vertical|right"
+        android:layout_gravity="center_vertical"
+        android:text="2019-08-22 15:30"
+        android:id="@+id/tv_flow_time"
+        android:textColor="@color/white"
+        android:textSize="24dp"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_width="25dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/line_up"
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:background="@color/white" />
+
+        <ImageView
+            android:id="@+id/iv_circle"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/timeline_circle_normal" />
+
+        <View
+            android:id="@+id/line_down"
+            android:layout_width="3dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:background="@color/white" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical|left"
+        android:maxLines="1"
+        android:id="@+id/tv_flow_name"
+        android:textSize="24dp"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

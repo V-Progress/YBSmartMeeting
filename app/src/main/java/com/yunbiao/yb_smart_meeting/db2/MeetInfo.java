@@ -6,6 +6,8 @@ import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Unique;
 
+import java.util.Objects;
+
 @Entity
 public class MeetInfo {
     @Id
@@ -125,5 +127,26 @@ public class MeetInfo {
 
     public void setCodeUrl(String codeUrl) {
         this.codeUrl = codeUrl;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MeetInfo meetInfo = (MeetInfo) o;
+        return id == meetInfo.id &&
+                meetRoomId == meetInfo.meetRoomId &&
+                beginTime.equals(meetInfo.beginTime) &&
+                endTime.equals(meetInfo.endTime) &&
+                meetRoomName.equals(meetInfo.meetRoomName) &&
+                name.equals(meetInfo.name) &&
+                theme.equals(meetInfo.theme) &&
+                userName.equals(meetInfo.userName) &&
+                codeUrl.equals(meetInfo.codeUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, beginTime, endTime, meetRoomId, meetRoomName, name, theme, userName, codeUrl);
     }
 }

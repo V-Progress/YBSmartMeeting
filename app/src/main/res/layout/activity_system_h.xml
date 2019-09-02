@@ -104,6 +104,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp">
         <Button
+            android:visibility="gone"
             android:layout_marginTop="30dp"
             android:padding="20dp"
             android:id="@+id/btn_depart_system"
@@ -115,6 +116,7 @@
             android:textSize="30dp" />
 
         <Button
+            android:visibility="gone"
             android:onClick="goVisitorActivity"
             android:layout_marginTop="30dp"
             android:padding="20dp"
@@ -126,6 +128,7 @@
             android:textSize="30dp" />
 
         <Button
+            android:visibility="gone"
             android:layout_marginTop="30dp"
             android:padding="20dp"
             android:id="@+id/btn_add_system"
@@ -135,7 +138,9 @@
             android:text="@string/System_Add"
             android:textColor="@color/white"
             android:textSize="30dp" />
+
         <Button
+            android:visibility="gone"
             android:layout_marginTop="30dp"
             android:padding="20dp"
             android:id="@+id/btn_data_system"

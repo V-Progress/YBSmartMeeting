@@ -53,8 +53,9 @@
             android:orientation="vertical">
 
             <ImageView
+                android:padding="5dp"
                 android:id="@+id/iv_main_code"
-                android:scaleType="centerInside"
+                android:scaleType="fitXY"
                 android:layout_width="180dp"
                 android:layout_height="180dp"
                 android:background="@mipmap/frame_qrcode" />

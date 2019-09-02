@@ -13,7 +13,6 @@
     <TextView
         android:visibility="gone"
         android:textColor="@color/white"
-        android:text="暂无会议"
         android:gravity="center"
         android:background="#74000000"
         android:id="@+id/tv_meeting_name"
@@ -22,14 +21,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
     <com.wang.avi.AVLoadingIndicatorView
         android:visibility="visible"
         android:layout_centerInParent="true"
         android:id="@+id/av_loading"
         android:layout_width="200dp"
         android:layout_height="match_parent" />
-
-
 
 </RelativeLayout>

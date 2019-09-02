@@ -43,7 +43,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
-        android:name="com.yunbiao.yb_smart_meeting.APP"
+        android:name=".APP"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -52,16 +52,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="label,allowBackup">
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.CaptureActivity"></activity>
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.EditInfoActivity" />
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.SettingActivity" />
+
+        <activity android:name=".activity.ShareActivity"
+            android:theme="@android:style/Theme.Translucent"/>
+
+        <activity android:name=".activity.CaptureActivity" />
+        <activity android:name=".activity.EditInfoActivity" />
+        <activity android:name=".activity.SettingActivity" />
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="xKjZ2Yn9ms9FuRVv1k0IGj3clhaGUIkV" />
 
         <activity
-            android:name="com.yunbiao.yb_smart_meeting.SplashActivity"
+            android:name=".SplashActivity"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent">
             <intent-filter>
@@ -73,45 +77,44 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.yunbiao.yb_smart_meeting.activity.WelComeActivity"
+            android:name=".activity.WelComeActivity"
             android:launchMode="singleTask" />
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.EmployListActivity" />
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.SignActivity" /> <!-- 开机自动重启 -->
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.SystemActivity" />
-        <activity android:name="com.yunbiao.yb_smart_meeting.activity.VisitorActivity" />
-        <!--<activity-->
-            <!--android:name="com.tencent.bugly.beta.ui.BetaActivity"-->
-            <!--android:configChanges="keyboardHidden|orientation|screenSize|locale"-->
-            <!--android:theme="@android:style/Theme.Translucent" />-->
+        <activity android:name=".activity.EmployListActivity" />
+        <activity android:name=".activity.SignActivity" /> <!-- 开机自动重启 -->
+        <activity android:name=".activity.SystemActivity" />
+        <activity android:name=".activity.VisitorActivity" /> <!-- <activity -->
+        <!-- android:name="com.tencent.bugly.beta.ui.BetaActivity" -->
+        <!-- android:configChanges="keyboardHidden|orientation|screenSize|locale" -->
+        <!-- android:theme="@android:style/Theme.Translucent" /> -->
         <activity
-            android:name="com.yunbiao.yb_smart_meeting.xmpp.NotificationDetailsActivity"
+            android:name=".xmpp.NotificationDetailsActivity"
             android:label="Notification Details" />
         <activity
-            android:name="com.yunbiao.yb_smart_meeting.xmpp.NotificationSettingsActivity"
+            android:name=".xmpp.NotificationSettingsActivity"
             android:label="Notification Settings" />
 
         <service android:name="com.huashi.otg.sdk.HsOtgService" />
 
-        <receiver android:name="com.yunbiao.yb_smart_meeting.receiver.USBBroadcastReceiver">
+        <receiver android:name=".receiver.USBBroadcastReceiver">
             <intent-filter android:priority="800">
                 <action android:name="android.hardware.usb.action.USB_STATE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.yunbiao.yb_smart_meeting.receiver.BootRestartReceiver">
+        <receiver android:name=".receiver.BootRestartReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.yunbiao.yb_smart_meeting.receiver.DateChangedReceiver">
+        <receiver android:name=".receiver.DateChangedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.DATE_CHANGED" />
             </intent-filter>
         </receiver>
 
-        <service android:name="com.yunbiao.yb_smart_meeting.utils.killSelfService" />
-        <service android:name="com.yunbiao.yb_smart_meeting.xmpp.NotificationService" /> <!-- <service android:name=".heartbeat.MyProtectService"></service> -->
+        <service android:name=".utils.killSelfService" />
+        <service android:name=".xmpp.NotificationService" /> <!-- <service android:name=".heartbeat.MyProtectService"></service> -->
         <!-- 百度定位 -->
         <service
             android:name="com.baidu.location.f"

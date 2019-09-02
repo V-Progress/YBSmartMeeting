@@ -232,14 +232,8 @@ public class RecordManager {
     }
 
     private Map<Long,EntryInfo> currMeetingEntryMap = new HashMap<>();
-    public void setEntryList(MeetInfo meetInfo) {
+    public void setEntryList(List<EntryInfo> entryInfos) {
         currMeetingEntryMap.clear();
-        if(meetInfo == null ){
-            return;
-        }
-
-        List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetInfo.getId());
-
         if(entryInfos == null){
             return;
         }

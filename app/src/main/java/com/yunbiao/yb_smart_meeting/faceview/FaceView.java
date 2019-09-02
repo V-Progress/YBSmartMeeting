@@ -52,7 +52,7 @@ public class FaceView extends FrameLayout {
         int width = SpUtils.getInt(SpUtils.CAMERA_WIDTH);
         int height = SpUtils.getInt(SpUtils.CAMERA_HEIGHT);
         if(width == 0 || height == 0){
-            CameraSettings.setCameraPreviewSize(CameraSettings.SIZE_1280_1024);
+            CameraSettings.setCameraPreviewSize(CameraSettings.SIZE_1280_720);
         } else {
             CameraSettings.setCameraPreviewWidth(width);
             CameraSettings.setCameraPreviewHeight(height);
@@ -173,11 +173,10 @@ public class FaceView extends FrameLayout {
                 e("认识");
             }
 
-
-//            e("检测耗时----------> " + verifyResult.getCheckConsumeTime() + " 毫秒");
-//            e("认证耗时----------> " + verifyResult.getVerifyConsumeTime() + " 毫秒");
-//            e("提取耗时----------> " + verifyResult.getExtractConsumeTime() + " 毫秒");
-//            e("*******************************************************");
+            e("检测耗时----------> " + verifyResult.getCheckConsumeTime() + " 毫秒");
+            e("认证耗时----------> " + verifyResult.getVerifyConsumeTime() + " 毫秒");
+            e("提取耗时----------> " + verifyResult.getExtractConsumeTime() + " 毫秒");
+            e("*******************************************************");
 
             handleSearchResult(verifyResult);
         }

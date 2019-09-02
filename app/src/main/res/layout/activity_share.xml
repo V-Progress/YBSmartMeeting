@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#6A000000"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:padding="5dp"
+        android:background="@mipmap/frame_qrcode"
+        android:id="@+id/iv_share"
+        android:layout_centerInParent="true"
+        android:layout_width="500dp"
+        android:layout_height="500dp" />
+
+    <LinearLayout
+        android:layout_marginBottom="1dp"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/iv_share"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_gravity="center"
+            android:id="@+id/tv_share_time"
+            android:textColor="@color/white"
+            android:textSize="22dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <SeekBar
+            android:visibility="gone"
+            android:layout_marginLeft="10dp"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:id="@+id/sb_share_time"
+            android:thumb="@null"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/iv_share"
+        android:textSize="76dp"
+        android:textColor="@color/white"
+        android:text="请扫描二维码"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
