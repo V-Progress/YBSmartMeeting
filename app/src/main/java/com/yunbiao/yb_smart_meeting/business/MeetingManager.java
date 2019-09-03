@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -48,6 +51,13 @@ public class MeetingManager {
 
     public void init() {
         loadCompany();
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                getAllMeeting();
+            }
+        },5,5, TimeUnit.MINUTES);
     }
 
     private void loadCompany() {
@@ -129,7 +139,7 @@ public class MeetingManager {
 
     //清除数据库
     public void clearDB(){
-        DaoManager.get().deleteAll(MeetInfo.class);
+        DaoManager.get().deleteAllMeeting();
         DaoManager.get().deleteAll(EntryInfo.class);
         DaoManager.get().deleteAll(FlowInfo.class);
         DaoManager.get().deleteAll(AdvertInfo.class);

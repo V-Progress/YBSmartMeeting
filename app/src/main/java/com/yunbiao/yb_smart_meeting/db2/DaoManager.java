@@ -1,6 +1,5 @@
 package com.yunbiao.yb_smart_meeting.db2;
 
-import android.content.pm.UserInfo;
 import android.util.Log;
 
 import com.yunbiao.yb_smart_meeting.APP;
@@ -101,18 +100,6 @@ public class DaoManager {
         return daoSession.getFlowInfoDao().queryBuilder().where(FlowInfoDao.Properties.MeetId.eq(meetId)).list();
     }
 
-
-    public EntryInfo queryEntryInfoById(long id){
-        if(daoMaster == null){
-            return null;
-        }
-        List<EntryInfo> list = daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.Id.eq(id)).list();
-        if(list == null || list.size()<=0){
-            return null;
-        }
-        return list.get(0);
-    }
-
     public List<RecordInfo> queryRecordByUpload(boolean isUpload){
         if(daoSession == null){
             return null;
@@ -126,13 +113,6 @@ public class DaoManager {
         }
         return daoSession.getAdvertInfoDao().queryBuilder().where(AdvertInfoDao.Properties.MeetId.eq(id)).list();
 
-    }
-
-    public <T> List<T> queryById(Class<T> t, String id){
-        if(daoSession == null){
-            return null;
-        }
-        return daoSession.queryRaw(t,"id",id);
     }
 
     public List<UserBean> queryUserByFaceId(String faceId){
@@ -150,38 +130,11 @@ public class DaoManager {
 
     }
 
-    public List<PassageBean> queryPassageByFaceId(String faceId){
-        if(daoSession == null){
-            return null;
-        }
-        return daoSession.getPassageBeanDao().queryBuilder().where(PassageBeanDao.Properties.FaceId.eq(faceId)).list();
-    }
-
-    public VisitorBean queryByVisitorFaceId(String faceId){
-        if(daoSession == null){
-            return null;
-        }
-        List<VisitorBean> visitorBeans = daoSession.getVisitorBeanDao().loadAll();
-        for (VisitorBean visitorBean : visitorBeans) {
-            Log.e(TAG, "queryByVisitorFaceId: ----- " + visitorBean.toString());
-        }
-
-        VisitorBeanDao visitorBeanDao = daoSession.getVisitorBeanDao();
-        return visitorBeanDao.queryBuilder().where(VisitorBeanDao.Properties.FaceId.eq(faceId)).unique();
-    }
-
     public List<PassageBean> queryByPassDate(String date){
         if(daoSession == null){
             return null;
         }
         return daoSession.getPassageBeanDao().queryBuilder().where(PassageBeanDao.Properties.CreateDate.eq(date)).list();
-    }
-
-    public List<PassageBean> queryByPassUpload(boolean b){
-        if(daoSession == null){
-            return null;
-        }
-        return daoSession.getPassageBeanDao().queryBuilder().where(PassageBeanDao.Properties.IsUpload.eq(b)).list();
     }
 
     public <T>long delete(T t){
@@ -197,6 +150,14 @@ public class DaoManager {
             return FAILURE;
         }
         daoSession.deleteAll(clazz);
+        return SUCCESS;
+    }
+
+    public long deleteAllMeeting(){
+        if(daoSession == null){
+            return FAILURE;
+        }
+        daoSession.getMeetInfoDao().deleteAll();
         return SUCCESS;
     }
 

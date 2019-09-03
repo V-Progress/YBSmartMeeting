@@ -4,6 +4,7 @@ import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.dingmouren.layoutmanagergroup.viewpager.OnViewPagerListener;
 import com.dingmouren.layoutmanagergroup.viewpager.ViewPagerLayoutManager;
@@ -15,12 +16,14 @@ import com.yunbiao.yb_smart_meeting.db2.AdvertInfo;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MediaFragment extends BaseFragment {
     private static final String TAG = "MediaFragment";
     private RecyclerView rlvMedia;
     private MediaAdapter myAdapter;
+    private List<AdvertInfo> advertInfos = new ArrayList<>();
 
     @Override
     protected int setLayout() {
@@ -34,6 +37,9 @@ public class MediaFragment extends BaseFragment {
         rlvMedia.setLayoutManager(viewPagerLayoutManager);
         rlvMedia.setNestedScrollingEnabled(false);
         rlvMedia.setOnFlingListener(null);
+
+        myAdapter = new MediaAdapter(getActivity(), advertInfos,rlvMedia);
+        myAdapter.bindData();
 
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(rlvMedia);
@@ -76,9 +82,13 @@ public class MediaFragment extends BaseFragment {
     public void update(MeetingEvent event) {
         MeetInfo meetInfo = event.getMeetInfo();
         int state = event.getState();
+        advertInfos.clear();
+        myAdapter.notifyDataSetChanged();
+
         switch (state) {
             case MeetingEvent.GET_MEETING_FAILED:
             case MeetingEvent.NO_MEETING:
+                rlvMedia.setVisibility(View.GONE);
                 showTips("暂无会议");
                 break;
             case MeetingEvent.PRELOAD:
@@ -89,6 +99,7 @@ public class MediaFragment extends BaseFragment {
     }
 
     private void loadAdvert(MeetInfo meetInfo) {
+        rlvMedia.setVisibility(View.GONE);
         if (meetInfo == null) {
             showTips("暂无会议安排");
             return;
@@ -123,9 +134,9 @@ public class MediaFragment extends BaseFragment {
         for (AdvertInfo advertInfo : advertInfos) {
             d(advertInfo.toString());
         }
-
-        myAdapter = new MediaAdapter(getActivity(), advertInfos,rlvMedia);
-        myAdapter.bindData();
+        rlvMedia.setVisibility(View.VISIBLE);
+        this.advertInfos.addAll(advertInfos);
+        myAdapter.notifyDataSetChanged();
     }
 
     public class NoMediaDataEvent {
