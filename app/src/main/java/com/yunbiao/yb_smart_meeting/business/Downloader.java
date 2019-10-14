@@ -78,7 +78,7 @@ public class Downloader {
         d("准备下载：" + poll.getName() + " --- " + head + " --- " + headPath);
         MyXutils.getInstance().downLoadFile(head, headPath, false, new MyXutils.XDownLoadCallBack() {
             @Override
-            public void onLoading(long total, long current, boolean isDownloading) { }
+            public void onLoading(long total, long current, boolean isDownloading) { d("进度：" + current + " / " + total);}
 
             @Override
             public void onSuccess(File result) {

@@ -1,32 +1,30 @@
-package com.yunbiao.yb_smart_meeting.business;
+package com.yunbiao.yb_smart_meeting.Access;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.yunbiao.yb_smart_meeting.activity.Event.GetMeetingEvent;
-import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
 import com.yunbiao.yb_smart_meeting.afinel.Constants;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
-import com.yunbiao.yb_smart_meeting.bean.CompanyBean;
-import com.yunbiao.yb_smart_meeting.db2.AdvertInfo;
-import com.yunbiao.yb_smart_meeting.db2.FlowInfo;
-import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.bean.meet_model.Meet;
-import com.yunbiao.yb_smart_meeting.db2.DaoManager;
-import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.bean.meet_model.MeetingResponse;
+import com.yunbiao.yb_smart_meeting.db2.AdvertInfo;
+import com.yunbiao.yb_smart_meeting.db2.DaoManager;
+import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
+import com.yunbiao.yb_smart_meeting.db2.FlowInfo;
+import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
-import org.greenrobot.eventbus.EventBus;
-
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,69 +34,59 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Call;
+import okhttp3.Request;
 
-public class MeetingManager {
-    private static final String TAG = "MeetingManager";
-    private static MeetingManager meetingManager = new MeetingManager();
+public class MeetingLoader {
+    private static final String TAG = "MeetingLoader";
+    private ScheduledExecutorService executor;
 
-    private MeetingManager() {
-
+    private MeetingLoader() {
+        executor = Executors.newSingleThreadScheduledExecutor();
     }
 
-    public static MeetingManager getInstance() {
-        return meetingManager;
+    private boolean isAutoThreadRunning = false;
+
+    public static MeetingLoader meetingLoader = new MeetingLoader();
+
+    public static MeetingLoader i() {
+        return meetingLoader;
     }
 
-    public void init() {
-        loadCompany();
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    public interface LoadListener {
+        void onStart();
+
+        void onError();
+
+        void onSuccess();
+
+        void noMeeting();
+
+        void onFinish();
+
+        void onPreload(MeetInfo currentMeetInfo);
+
+        void onBegan(MeetInfo currentMeetInfo);
+
+        void onEnded(MeetInfo currentMeetInfo);
+
+        void onNextMeet(MeetInfo nextMeetInfo);
+    }
+
+    public void startAutoGetMeeting(final LoadListener loadListener) {
+        if (isAutoThreadRunning) {
+            return;
+        }
         executor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                getAllMeeting();
+                isAutoThreadRunning = true;
+                Log.e(TAG, "run: 开始自动获取会议");
+                getAllMeeting(loadListener);
             }
-        },5,5, TimeUnit.MINUTES);
+        }, 3, 60, TimeUnit.SECONDS);
     }
 
-    private void loadCompany() {
-        final Map<String, String> map = new HashMap<>();
-        String deviceNo = HeartBeatClient.getDeviceNo();
-        Log.e(TAG, "loadCompany: " + deviceNo);
-        map.put("deviceNo", deviceNo);
-        OkHttpUtils.post().params(map).tag(this).url(ResourceUpdate.COMPANYINFO).build().execute(new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                Log.e(TAG, "onResponse: ----- " + response);
-                if (TextUtils.isEmpty(response)) {
-                    return;
-                }
-                CompanyBean companyBean = new Gson().fromJson(response, CompanyBean.class);
-
-                int comid = companyBean.getCompany().getComid();
-                String name = companyBean.getCompany().getComname();
-                String pwd = companyBean.getCompany().getDevicePwd();
-                String logoUrl = companyBean.getCompany().getComlogo();
-
-                SpUtils.saveInt(SpUtils.COMPANY_ID, comid);
-                SpUtils.saveStr(SpUtils.COMPANY_NAME, name);
-                SpUtils.saveStr(SpUtils.MENU_PWD, pwd);
-                SpUtils.saveStr(SpUtils.COMPANY_LOGO, logoUrl);
-
-                //发送更新事件
-                EventBus.getDefault().postSticky(new SysInfoUpdateEvent());
-
-                //获取全部的会议
-                getAllMeeting();
-            }
-        });
-    }
-
-    public void getAllMeeting() {
+    public void getAllMeeting(final LoadListener loadListener) {
         d("开始请求数据-------------------------");
         OkHttpUtils.post()
                 .url(ResourceUpdate.GET_MEETING)
@@ -106,22 +94,52 @@ public class MeetingManager {
                 .build()
                 .execute(new StringCallback() {
                     @Override
-                    public void onError(Call call, Exception e, int id) {
-                        d("请求失败：" + (e== null?"null":e.getMessage()));
-                        EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.GET_MEETING_FAILED));
+                    public void onBefore(Request request, int id) {
+                        if (loadListener != null) {
+                            loadListener.onStart();
+                        }
                     }
+
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        d("请求失败：" + (e == null ? "null" : e.getMessage()));
+                        if (loadListener != null) {
+                            loadListener.onError();
+                            loadListener.onFinish();
+                        }
+                    }
+
 
                     @Override
                     public void onResponse(String response, int id) {
                         d("请求成功：" + response);
+//                        String cacheMeeting = SpUtils.getStr(SpUtils.MEETING_CACHE);
+//                        if(!isInit){
+//                            if(TextUtils.equals(cacheMeeting,response)){
+//                                d("会议无变化，不继续请求");
+//                                if(loadListener != null){
+//                                    loadListener.onFinish();
+//                                }
+//                                return;
+//                            }
+//                        }
+//                        isInit = false;
+
                         SpUtils.saveStr(SpUtils.MEETING_CACHE, response);
+
                         MeetingResponse meetingResponse = new Gson().fromJson(response, MeetingResponse.class);
                         if (meetingResponse == null) {
-                            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.GET_MEETING_FAILED));
+                            if (loadListener != null) {
+                                loadListener.onError();
+                                loadListener.onFinish();
+                            }
                             return;
                         }
                         if (meetingResponse.getStatus() == 2) {
-                            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.NO_MEETING));
+                            if (loadListener != null) {
+                                loadListener.noMeeting();
+                                loadListener.onFinish();
+                            }
                             return;
                         }
 
@@ -131,14 +149,14 @@ public class MeetingManager {
                         //删除不存在的会议
                         deleteNoExist(meetingResponse);
 
-                        //处理数据
-                        saveMeet(meetingResponse);
+                        //保存会议
+                        saveMeet(meetingResponse, loadListener);
                     }
                 });
     }
 
     //清除数据库
-    public void clearDB(){
+    public void clearDB() {
         DaoManager.get().deleteAllMeeting();
         DaoManager.get().deleteAll(EntryInfo.class);
         DaoManager.get().deleteAll(FlowInfo.class);
@@ -166,8 +184,12 @@ public class MeetingManager {
         }
     }
 
+    private void d(String log) {
+        Log.d(TAG, log);
+    }
+
     //保存会议
-    public void saveMeet(final MeetingResponse meetingResponse) {
+    public void saveMeet(final MeetingResponse meetingResponse, final LoadListener loadListener) {
         d("开始保存会议信息-------------------------");
         Observable.create(new ObservableOnSubscribe<Object>() {
             @Override
@@ -233,12 +255,96 @@ public class MeetingManager {
                     }
                 }
 
-                EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.COMPLETE));
+                if (loadListener != null) {
+                    loadListener.onSuccess();
+                    loadListener.onFinish();
+                }
             }
         }).subscribeOn(Schedulers.computation()).subscribe();
     }
 
-    private void d(String log) {
-        Log.d(TAG, log);
+    private DateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    private Timer timer = null;
+    private int currMeetNum = 1;
+
+    /***
+     * 加载当前会议或最近的会议
+     */
+    public void loadCurrentMeeting(final LoadListener loadListener) {
+//        MeetInfo currentMeetInfo = meetingProcess.getCurrentMeetInfo();
+//        Date beginDate = meetingProcess.getBeginDate();
+//        Date endDate = meetingProcess.getEndDate();
+
+        //判断如果当前有正在进行的会议则不刷新，等会议结束后再刷新
+//        if (currentMeetInfo != null && beginDate != null && endDate != null) {
+//            Date date = new Date();
+//            if (date.after(beginDate) && date.before(endDate)) {
+//                if (loadListener != null) {
+//                    loadListener.onBegan(meetingProcess.getCurrentMeetInfo());
+//                }
+//                return;
+//            }
+//        }
+
+        final MeetInfo meetInfo = DaoManager.get().queryByMeetNum(currMeetNum);
+        //没有num为1的会议时表示没有会议
+        if (currMeetNum == 1 && meetInfo == null) {
+            if (loadListener != null) {
+                loadListener.noMeeting();
+            }
+            return;
+        }
+
+        if(meetInfo == null){
+            return;
+        }
+
+        String beginTime = meetInfo.getBeginTime();
+        String endTime = meetInfo.getEndTime();
+
+        try {
+            Date currDate = new Date();
+            Date begin = formater.parse(beginTime);
+            Date end = formater.parse(endTime);
+
+            //开始之前
+            if (currDate.before(begin)) {
+                if(loadListener != null){
+                    loadListener.onPreload(meetInfo);
+                }
+            } else if (currDate.after(end)) {//已经结束
+                currMeetNum++;
+                loadCurrentMeeting(loadListener);
+                return;
+            }
+
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (loadListener != null) {
+                        loadListener.onBegan(meetInfo);
+                    }
+                }
+            }, begin);
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (loadListener != null) {
+                        loadListener.onEnded(meetInfo);
+                    }
+                }
+            }, end);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadNext(int num,LoadListener loadListener){
+        MeetInfo nextMeetInfo = DaoManager.get().queryByMeetNum(num+1);
+        if(loadListener != null){
+            loadListener.onNextMeet(nextMeetInfo);
+        }
     }
 }

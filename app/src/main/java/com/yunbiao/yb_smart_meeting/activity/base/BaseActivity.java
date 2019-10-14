@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.yunbiao.yb_smart_meeting.APP;
+import com.yunbiao.yb_smart_meeting.Config;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.utils.UIUtils;
 
@@ -56,21 +57,19 @@ public abstract class BaseActivity extends FragmentActivity {
         int portraitLayout = getPortraitLayout();
         int landscapeLayout = getLandscapeLayout();
 
+        int layoutId = 0;
         if (mCurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            if(portraitLayout == 0){
-                UIUtils.showLong(this,"竖屏模式暂无布局\n请切换横屏模式");
-                APP.exit();
-                return;
-            }
-            setContentView(portraitLayout);
+            layoutId = portraitLayout;
         } else {
-            if(landscapeLayout == 0){
-                UIUtils.showLong(this,"横屏模式暂无布局\n请切换竖屏模式");
-                APP.exit();
-                return;
-            }
-            setContentView(landscapeLayout);
+            layoutId = landscapeLayout;
         }
+
+        if(layoutId == 0){
+            APP.exit();
+            return;
+        }
+
+        setContentView(layoutId);
 
         findHeadView();
 

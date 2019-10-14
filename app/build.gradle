@@ -7,7 +7,7 @@ android {
         applicationId "com.yunbiao.yb_smart_meeting"
         minSdkVersion 22
         targetSdkVersion 22
-        versionCode 50
+        versionCode 51
         versionName "1.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         flavorDimensions "default"
@@ -65,7 +65,7 @@ android {
     }
     //greenDao配置信息
     greendao {
-        schemaVersion 27//<--数据库的版本，用于升级时候进行更改
+        schemaVersion 29//<--数据库的版本，用于升级时候进行更改
         daoPackage 'com.yunbiao.yb_smart_meeting.db2'
 //这个是生成DAOs、DaoMaster、DaoSession代码保存的包名,默认为entities所在包名
         targetGenDir 'src/main/java'
@@ -95,7 +95,6 @@ dependencies {
     implementation 'com.roger.match.library:library:1.0.1'
     implementation 'com.android.support:appcompat-v7:28+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-
     implementation 'org.greenrobot:eventbus:3.0.0'
     implementation 'com.alibaba:fastjson:1.2.49'
     implementation 'com.github.bumptech.glide:glide:3.7.0'
@@ -104,11 +103,11 @@ dependencies {
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'org.xutils:xutils:3.3.36'
     //bugly
-//    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
-//    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
+    //    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
+    //    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
     //umeng
-//    implementation 'com.umeng.umsdk:analytics:7.5.4'
-//    implementation 'com.umeng.umsdk:common:1.5.4'
+    //    implementation 'com.umeng.umsdk:analytics:7.5.4'
+    //    implementation 'com.umeng.umsdk:common:1.5.4'
     implementation 'com.zhy:okhttputils:2.6.2'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     //京东人脸库
@@ -123,11 +122,9 @@ dependencies {
     implementation 'org.greenrobot:greendao:3.2.2'
     implementation 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v1.4.0'
     implementation files('libs/XHApi.jar')
-
     implementation 'io.reactivex.rxjava2:rxjava:2.0.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-
     implementation 'com.github.leifu1107:ViewpagerTransformer:V1.0'
-
     implementation 'com.github.DingMouRen:LayoutManagerGroup:1e6f4f96eb'
+    implementation files('libs/bestek.jar')
 }

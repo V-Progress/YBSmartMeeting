@@ -7,8 +7,6 @@ import android.os.Build;
 import android.view.View;
 
 import com.yunbiao.yb_smart_meeting.activity.base.BaseActivity;
-import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
-import com.yunbiao.yb_smart_meeting.receiver.MyProtectService;
 import com.yunbiao.yb_smart_meeting.utils.CommonUtils;
 import com.yunbiao.yb_smart_meeting.utils.UIUtils;
 
@@ -51,9 +49,10 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void initData() {
         //开启看门狗,只会在开机是启动一次
-        startService(new Intent(this, MyProtectService.class));
+        APP.bindProtectService();
 
         Config.deviceType = CommonUtils.getBroadType();
+//        Config.deviceType = Config.DEVICE_MEETING;
         ybPermission = new YBPermission(new YBPermission.PermissionListener(){
             @Override
             public void onPermissionFailed(String[] objects) {
@@ -66,7 +65,9 @@ public class SplashActivity extends BaseActivity {
             public void onFinish(boolean isComplete) {
                 if(isComplete){
                     APP.getContext().cauchException();
-                    startActivity(new Intent(SplashActivity.this, WelComeActivity.class));
+                    Intent intent = new Intent();
+                    intent.setClass(SplashActivity.this, InitActivity.class);
+                    startActivity(intent);
                     overridePendingTransition(0,0);
                     finish();
                 } else {

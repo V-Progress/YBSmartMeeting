@@ -391,9 +391,9 @@ public class CommonUtils {
             SpUtils.saveStr(SpUtils.BOARD_INFO,broad_info);
         }
         if (broad_info.contains("even@bnxd")){
-            return Config.DEVICE_SMALL_FACE;
+            return Config.DEVICE_MEETING_ACCESS;
         } else {
-            return Config.DEVICE_ONLY_FACE;
+            return Config.DEVICE_MEETING;
         }
     }
 

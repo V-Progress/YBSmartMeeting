@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import com.android.xhapimanager.XHApiManager;
 import com.yunbiao.yb_smart_meeting.APP;
+import com.yunbiao.yb_smart_meeting.business.HardwareUtil;
 import com.yunbiao.yb_smart_meeting.activity.Event.GpioEvent;
 import com.yunbiao.yb_smart_meeting.activity.Event.OpenDoorTimeEvent;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
@@ -101,6 +102,8 @@ public abstract class BaseGpioActivity extends BaseActivity {
         if(xhApi != null){
             xhApi.XHSetGpioValue(5,0);
         }
+
+        HardwareUtil.writeRelay(APP.getContext(),1);
     }
 
     //关门
@@ -114,6 +117,8 @@ public abstract class BaseGpioActivity extends BaseActivity {
         if(xhApi != null){
             xhApi.XHSetGpioValue(5,1);
         }
+
+        HardwareUtil.writeRelay(APP.getContext(),0);
     }
 
     //开灯

@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,10 +94,11 @@ public class RecordManager {
         Log.d(TAG, log);
     }
 
-    private final int TAG_MAX_TIME = 5;
-    private int verifyTag = 0;
+    public interface VerifyCallback {
+        void onVerifySuccess(RecordInfo recordInfo);
+    }
 
-    public void checkPassage(VerifyResult verifyResult) {
+    public void checkPassage(VerifyResult verifyResult, VerifyCallback verifyCallback) {
         FaceUser user = verifyResult.getUser();
         if (user == null || TextUtils.isEmpty(user.getUserId())) {
             return;
@@ -115,17 +117,12 @@ public class RecordManager {
             return;
         }
 
-        if (currMeetingEntryMap.size() <= 0) {
-            d("没有会议");
-            return;
-        }
-
-        if(!currMeetingEntryMap.containsKey(id)){
+        if (!currMeetIdList.containsKey(id)) {
             d("查无此人");
             return;
         }
 
-        EntryInfo entryInfo = currMeetingEntryMap.get(id);
+        EntryInfo entryInfo = currMeetIdList.get(id);
         recordInfo.setMeetId(entryInfo.getMeetId());
         recordInfo.setMeetEntryId(entryInfo.getMeetEntryId());
         recordInfo.setName(entryInfo.getName());
@@ -139,6 +136,9 @@ public class RecordManager {
 
         Log.e(TAG, "checkPassage: ----  可以通过");
         EventBus.getDefault().post(recordInfo);
+        if (verifyCallback != null) {
+            verifyCallback.onVerifySuccess(recordInfo);
+        }
 
         sendRecord(recordInfo);
     }
@@ -161,23 +161,25 @@ public class RecordManager {
                 .addFile("heads", file.getName(), file)
                 .build()
                 .execute(new StringCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                recordInfo.setUpload(false);
-                long add = DaoManager.get().add(recordInfo);
-                Log.e(TAG, "onResponse: 添加记录： " + add );
-            }
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        recordInfo.setUpload(false);
+                    }
 
-            @Override
-            public void onResponse(String response, int id) {
-                recordInfo.setUpload(true);
-                long add = DaoManager.get().add(recordInfo);
-                Log.e(TAG, "onResponse: 添加记录： " + add );
-            }
-        });
+                    @Override
+                    public void onResponse(String response, int id) {
+                        recordInfo.setUpload(true);
+                    }
+
+                    @Override
+                    public void onAfter(int id) {
+                        long add = DaoManager.get().addOrUpdate(recordInfo);
+                        Log.e(TAG, "onResponse: 添加记录： " + add);
+                    }
+                });
     }
 
-    private long verifyOffsetTime = 2000;//验证间隔时间
+    private long verifyOffsetTime = 5000;//验证间隔时间
     private Map<Long, Long> passageMap = new HashMap<>();
 
     private boolean canPass(RecordInfo recordInfo) {
@@ -231,14 +233,14 @@ public class RecordManager {
         return filePic;
     }
 
-    private Map<Long,EntryInfo> currMeetingEntryMap = new HashMap<>();
-    public void setEntryList(List<EntryInfo> entryInfos) {
-        currMeetingEntryMap.clear();
-        if(entryInfos == null){
-            return;
-        }
+    private Map<Long, EntryInfo> currMeetIdList = new HashMap();
+
+    public void setCurrMeet(long meetId) {
+        currMeetIdList.clear();
+        List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetId);
         for (EntryInfo entryInfo : entryInfos) {
-            currMeetingEntryMap.put(entryInfo.getId(),entryInfo);
+            currMeetIdList.put(entryInfo.getId(), entryInfo);
         }
     }
+
 }

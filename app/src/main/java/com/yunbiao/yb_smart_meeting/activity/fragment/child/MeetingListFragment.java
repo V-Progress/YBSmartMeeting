@@ -17,10 +17,13 @@ import com.yunbiao.yb_smart_meeting.activity.fragment.BaseFragment;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
+import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MeetingListFragment extends BaseFragment {
@@ -44,8 +47,15 @@ public class MeetingListFragment extends BaseFragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(GetMeetingEvent event){
+    public void update(MeetingEvent event){
         List<MeetInfo> meetInfos = DaoManager.get().queryAll(MeetInfo.class);
+        Collections.sort(meetInfos, new Comparator<MeetInfo>() {
+            @Override
+            public int compare(MeetInfo o1, MeetInfo o2) {
+                //倒序：左大于右返回正值 //正序：左边大时返回负值
+                return o1.getNum() < o2.getNum() ? -1 : o1.getNum() > o2.getNum() ? 1 : 0 ;
+            }
+        });
         rlvMeetingList.setAdapter(new MeetingAdapter(meetInfos));
     }
 
@@ -73,7 +83,6 @@ public class MeetingListFragment extends BaseFragment {
         }
 
         class VH extends RecyclerView.ViewHolder{
-
             private final TextView name;
             private final TextView number;
             private final TextView begin;

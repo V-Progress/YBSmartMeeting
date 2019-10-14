@@ -22,11 +22,11 @@ public class MeetInfo {
     private String theme;
     private String userName;
     private String codeUrl;
+    private int num;
 
-    @Generated(hash = 1498060763)
-    public MeetInfo(long id, String beginTime, String endTime, long meetRoomId,
-            String meetRoomName, String name, String theme, String userName,
-            String codeUrl) {
+    @Generated(hash = 1357483309)
+    public MeetInfo(long id, String beginTime, String endTime, long meetRoomId, String meetRoomName, String name,
+            String theme, String userName, String codeUrl, int num) {
         this.id = id;
         this.beginTime = beginTime;
         this.endTime = endTime;
@@ -36,6 +36,7 @@ public class MeetInfo {
         this.theme = theme;
         this.userName = userName;
         this.codeUrl = codeUrl;
+        this.num = num;
     }
 
     @Generated(hash = 1707028029)
@@ -54,7 +55,16 @@ public class MeetInfo {
                 ", theme='" + theme + '\'' +
                 ", userName='" + userName + '\'' +
                 ", codeUrl='" + codeUrl + '\'' +
+                ", num=" + num +
                 '}';
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
     }
 
     public long getId() {

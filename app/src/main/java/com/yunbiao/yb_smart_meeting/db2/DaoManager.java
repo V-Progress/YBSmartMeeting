@@ -78,6 +78,13 @@ public class DaoManager {
         return daoSession.loadAll(clazz);
     }
 
+    public MeetInfo queryByMeetNum(int num){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.Num.eq(num)).unique();
+    }
+
     public List<RecordInfo> queryRecordByMeetId(long meetId){
         if(daoMaster == null){
             return null;
@@ -85,6 +92,15 @@ public class DaoManager {
         return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.MeetId.eq(meetId)).list();
     }
 
+    public List<EntryInfo> queryEntryByMeetIdOrType(long meetId,int type){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getEntryInfoDao()
+                .queryBuilder()
+                .where(EntryInfoDao.Properties.MeetId.eq(meetId),EntryInfoDao.Properties.Type.eq(type))
+                .list();
+    }
 
     public List<EntryInfo> queryEntryInfoByMeetId(long meetId){
         if(daoMaster == null){

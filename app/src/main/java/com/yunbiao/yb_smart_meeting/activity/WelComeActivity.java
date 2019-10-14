@@ -23,6 +23,7 @@ import com.jdjr.risk.face.local.user.FaceUser;
 import com.jdjr.risk.face.local.user.FaceUserManager;
 import com.jdjr.risk.face.local.verify.VerifyResult;
 import com.yunbiao.yb_smart_meeting.APP;
+import com.yunbiao.yb_smart_meeting.Access.MeetingLoader;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.Event.GetMeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
@@ -31,21 +32,17 @@ import com.yunbiao.yb_smart_meeting.activity.fragment.RecordFragment;
 import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.business.Downloader;
 import com.yunbiao.yb_smart_meeting.business.LocateManager;
-import com.yunbiao.yb_smart_meeting.business.MeetingLoader;
-import com.yunbiao.yb_smart_meeting.business.MeetingManager;
 import com.yunbiao.yb_smart_meeting.business.RecordManager;
 import com.yunbiao.yb_smart_meeting.business.ResourceCleanManager;
 import com.yunbiao.yb_smart_meeting.common.UpdateVersionControl;
-import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
-import com.yunbiao.yb_smart_meeting.faceview.FaceResult;
 import com.yunbiao.yb_smart_meeting.faceview.FaceSDK;
 import com.yunbiao.yb_smart_meeting.faceview.FaceView;
+import com.yunbiao.yb_smart_meeting.business.KDXFSpeechManager;
 import com.yunbiao.yb_smart_meeting.utils.RestartAPPTool;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
-import com.yunbiao.yb_smart_meeting.xmpp.ServiceManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -66,9 +63,6 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
     private ImageView ivMainLogo;//公司logo
     private TextView tvMainAbbName;//公司名
 
-    // xmpp推送服务
-    private ServiceManager serviceManager;
-
     //摄像头分辨率
     private FaceView faceView;
     private RecordFragment recordFragment;
@@ -76,7 +70,6 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
     private View aivLoading;
     private TextView tvPersonName;
     private ImageView ivMainCode;
-    boolean isInited = false;
 
     @Override
     protected String setTitle() {
@@ -97,20 +90,13 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
     protected void initView() {
         APP.setActivity(this);
         faceView = findViewById(R.id.face_view);
-        faceView.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_MENU) {
-                    goSetting();
-                }
-                return true;
-            }
-        });
         if (faceView != null) {
             faceView.setCallback(this);
         }
         ivMainLogo = findViewById(R.id.iv_main_logo);
         tvMainAbbName = findViewById(R.id.tv_main_abbname);
+
+        KDXFSpeechManager.instance().init(this);
 
         ivMainCode = find(R.id.iv_main_code);
         ivHead = find(R.id.iv_person_head);
@@ -125,13 +111,23 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
         //宣传
         Intro2Fragment introFragment = new Intro2Fragment();
         addFragment(R.id.fl_introduce_container, introFragment);
+
+        faceView.setOnClickListener(
+                new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goSetting();
+            }
+        });
+
+//        String name = SpUtils.getStr(SpUtils.COMPANY_NAME);
+//        if (!TextUtils.isEmpty(name)) tvMainAbbName.setText(name);
+        String logoUrl = SpUtils.getStr(SpUtils.COMPANY_LOGO);
+        Glide.with(this).load(logoUrl).asBitmap().into(ivMainLogo);
     }
 
     @Override
     protected void initData() {
-        //开启Xmpp
-        startXmpp();
-
         //初始化定位工具
         LocateManager.instance().init(this);
 
@@ -147,73 +143,15 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
     //准备就绪
     @Override
     public void onReady() {
-        if (isInited) {
-            return;
-        }
         //自动清理服务
         ResourceCleanManager.instance().startAutoCleanService();
+
         //初始化会议信息
-        MeetingManager.getInstance().init();
-        isInited = true;
-    }
-
-    //获取会议的通知
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(GetMeetingEvent event) {
-        switch (event.getState()) {
-            case GetMeetingEvent.GET_MEETING_FAILED:
-                EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_MEETING_FAILED));
-                break;
-            case GetMeetingEvent.NO_MEETING:
-                EventBus.getDefault().post(new MeetingEvent(MeetingEvent.NO_MEETING));
-                break;
-            default:
-                String name = SpUtils.getStr(SpUtils.COMPANY_NAME);
-                String logoUrl = SpUtils.getStr(SpUtils.COMPANY_LOGO);
-                if (!TextUtils.isEmpty(name)) tvMainAbbName.setText(name);
-                Glide.with(this).load(logoUrl).asBitmap().into(ivMainLogo);
-
-                //加载当前会议
-                MeetingLoader.i().loadCurrentMeeting();
-
-                //初始化记录
-                RecordManager.get();
-                break;
-        }
-    }
-
-    //会议更新的通知
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(MeetingEvent event) {
-        MeetInfo meetInfo = event.getMeetInfo();
-        switch (event.getState()) {
-            case MeetingEvent.PRELOAD:
-            case MeetingEvent.BEGAN:
-                Glide.with(this).load(meetInfo.getCodeUrl()).asBitmap().into(ivMainCode);
-
-                Downloader.downloadHead(meetInfo, new Downloader.DownloadListener() {
-                    @Override
-                    public void complete(final List<EntryInfo> entryInfos) {
-                        clearUser();
-
-                        Queue<EntryInfo> entryQueue = new LinkedList<>();
-                        entryQueue.addAll(entryInfos);
-                        Map<String, FaceUser> allFaceData = FaceSDK.instance().getAllFaceData();
-                        addUser(entryQueue, allFaceData, new Runnable() {
-                            @Override
-                            public void run() {
-                                RecordManager.get().setEntryList(entryInfos);
-                                aivLoading.setVisibility(View.GONE);
-                            }
-                        });
-                    }
-                });
-                break;
-        }
+        MeetingLoader.i().startAutoGetMeeting(loadListener);
     }
 
     @Override
-    public void onFaceDetection(FaceResult basePropertyMap) {
+    public void onFaceDetection(Boolean hasFace) {
         if (isAlwayOpen()) {
             return;
         }
@@ -226,7 +164,90 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
             return;
         }
 
-        RecordManager.get().checkPassage(verifyResult);
+        RecordManager.get().checkPassage(verifyResult, verifyCallback);
+    }
+
+    private RecordManager.VerifyCallback verifyCallback = new RecordManager.VerifyCallback() {
+        @Override
+        public void onVerifySuccess(RecordInfo recordInfo) {
+            KDXFSpeechManager.instance().playText(recordInfo.getName() + "，欢迎参加本次会议");
+        }
+    };
+
+    private MeetingLoader.LoadListener loadListener = new MeetingLoader.LoadListener() {
+        @Override
+        public void onStart() {
+        }
+
+        @Override
+        public void onError() {
+            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.GET_MEETING_FAILED));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_MEETING_FAILED));
+        }
+
+        @Override
+        public void onSuccess() {
+            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.COMPLETE));
+            //加载当前会议
+            MeetingLoader.i().loadCurrentMeeting(loadListener);
+
+            //初始化签到记录
+            RecordManager.get();
+        }
+
+        @Override
+        public void noMeeting() {
+            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.NO_MEETING));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.NO_MEETING));
+        }
+
+        @Override
+        public void onFinish() {
+        }
+
+        @Override
+        public void onPreload(final MeetInfo currentMeetInfo) {
+            tvMainAbbName.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (!TextUtils.isEmpty(currentMeetInfo.getMeetRoomName()))
+                        tvMainAbbName.setText(currentMeetInfo.getMeetRoomName());
+                }
+            });
+
+            loadQRCode(currentMeetInfo);
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.PRELOAD, currentMeetInfo));
+            loadUser(currentMeetInfo);
+        }
+
+        @Override
+        public void onBegan(MeetInfo currentMeetInfo) {
+            loadQRCode(currentMeetInfo);
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.BEGAN, currentMeetInfo));
+            loadUser(currentMeetInfo);
+        }
+
+        @Override
+        public void onEnded(MeetInfo currentMeetInfo) {
+            clearUser();
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.ENDED, currentMeetInfo));
+        }
+
+        @Override
+        public void onNextMeet(MeetInfo nextMeetInfo) {
+
+        }
+    };
+
+    private void loadQRCode(final MeetInfo meetInfo) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "run: 加载二维码");
+                String codeUrl = meetInfo.getCodeUrl();
+                Glide.with(WelComeActivity.this).load(codeUrl).asBitmap().into(ivMainCode);
+            }
+        });
     }
 
     private void clearUser() {
@@ -235,6 +256,24 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
             public void onUserResult(boolean b, int i) {
                 Log.e(TAG, "onUserResult: " + b + " --- " + i);
                 aivLoading.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void loadUser(final MeetInfo meetInfo) {
+        RecordManager.get().setCurrMeet(meetInfo.getId());
+        Downloader.downloadHead(meetInfo, new Downloader.DownloadListener() {
+            @Override
+            public void complete(final List<EntryInfo> entryInfos) {
+                Queue<EntryInfo> entryQueue = new LinkedList<>();
+                entryQueue.addAll(entryInfos);
+
+                Map<String, FaceUser> allFaceData = FaceSDK.instance().getAllFaceData();
+                addUser(entryQueue, allFaceData, new Runnable() {
+                    @Override
+                    public void run() {
+                    }
+                });
             }
         });
     }
@@ -296,18 +335,6 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
             tvPersonName.setText("");
         }
     };
-
-    private void startXmpp() {//开启xmpp
-        serviceManager = new ServiceManager(this);
-        serviceManager.startService();
-    }
-
-    private void destoryXmpp() {
-        if (serviceManager != null) {
-            serviceManager.stopService();
-            serviceManager = null;
-        }
-    }
 
     //密码弹窗
     private void inputPwd(final Runnable runnable) {
@@ -438,8 +465,7 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
         if (faceView != null) {
             faceView.destory();
         }
-        destoryXmpp();
-
+        APP.stopXMPP();
         LocateManager.instance().destory();
     }
 

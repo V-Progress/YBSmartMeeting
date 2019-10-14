@@ -1,4 +1,4 @@
-package com.yunbiao.yb_smart_meeting.activity.fragment.child;
+package com.yunbiao.yb_smart_meeting.adapter;
 
 import android.app.Activity;
 import android.content.Context;

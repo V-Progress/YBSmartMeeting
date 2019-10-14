@@ -18,31 +18,31 @@
             android:src="@mipmap/logo_yunbiao" />
 
         <TextView
-            android:gravity="center"
-            android:textStyle="bold"
             android:id="@+id/tv_main_abbname"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:letterSpacing="0.1"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:letterSpacing="0.1"
             android:text="云标智能会议"
             android:textColor="@color/white"
-            android:textSize="32dp" />
+            android:textSize="32dp"
+            android:textStyle="bold" />
 
         <TextClock
-            android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="right"
+            android:gravity="center"
             android:text="2019/08/02 17:20"
             android:textColor="@color/white"
             android:textSize="32dp" />
     </FrameLayout>
 
     <LinearLayout
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="360dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -53,12 +53,12 @@
             android:orientation="vertical">
 
             <ImageView
-                android:padding="5dp"
                 android:id="@+id/iv_main_code"
-                android:scaleType="fitXY"
                 android:layout_width="180dp"
                 android:layout_height="180dp"
-                android:background="@mipmap/frame_qrcode" />
+                android:background="@mipmap/frame_qrcode"
+                android:padding="5dp"
+                android:scaleType="fitXY" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -71,21 +71,22 @@
         </LinearLayout>
 
         <FrameLayout
-            android:padding="5dp"
-            android:background="@mipmap/frame_face"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.5">
+            android:layout_weight="1.5"
+            android:background="@mipmap/frame_face"
+            android:padding="5dp">
+
             <com.yunbiao.yb_smart_meeting.faceview.FaceView
                 android:id="@+id/face_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <com.wang.avi.AVLoadingIndicatorView
-                android:visibility="gone"
                 android:id="@+id/av_loading"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone" />
         </FrameLayout>
 
         <LinearLayout
@@ -96,24 +97,24 @@
             android:orientation="vertical">
 
             <FrameLayout
-                android:padding="5dp"
-                android:background="@mipmap/img_noface"
                 android:layout_width="190dp"
                 android:layout_height="190dp"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:background="@mipmap/img_noface"
+                android:padding="5dp">
 
                 <ImageView
                     android:id="@+id/iv_person_head"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
 
                 <com.wang.avi.AVLoadingIndicatorView
                     android:id="@+id/aiv_person_loading"
-                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:visibility="gone" />
             </FrameLayout>
 
             <TextView
@@ -126,26 +127,26 @@
                 android:textSize="24dp" />
 
             <TextView
-                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="20dp" />
+                android:textSize="20dp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 
     <FrameLayout
         android:id="@+id/fl_record_container"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
-        android:layout_height="260dp"/>
+        android:layout_height="260dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal" />
 
     <FrameLayout
         android:id="@+id/fl_introduce_container"
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp" />
 </LinearLayout>

@@ -13,14 +13,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class
-ResourceCleanManager {
+public class ResourceCleanManager {
     private static final String TAG = "ResourceCleanManager";
     private static ResourceCleanManager resourceCleanManager = new ResourceCleanManager();
     private final ScheduledExecutorService cleanThread;
     private final int CLEAN_TIME_OFFSET = 4;
     private final int MAX_SIZE = 10000;
     private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+    private boolean isAutoCleanThreadRunningt = false;
 
     private ResourceCleanManager() {
         cleanThread = Executors.newSingleThreadScheduledExecutor();
@@ -31,9 +31,13 @@ ResourceCleanManager {
     }
 
     public void startAutoCleanService() {
+        if(isAutoCleanThreadRunningt){
+            return;
+        }
         cleanThread.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                isAutoCleanThreadRunningt = true;
                 String currentFaceCachePath = Constants.RECORD_PATH;
                 File currFaceDir = new File(currentFaceCachePath);
                 if (!currFaceDir.exists()) {
@@ -73,7 +77,7 @@ ResourceCleanManager {
                         return;
                     }
 
-                    if(TextUtils.isEmpty(tempPath)){
+                    if (TextUtils.isEmpty(tempPath)) {
                         new File(tempPath).delete();
                     }
                 }

@@ -3,11 +3,8 @@ package com.yunbiao.yb_smart_meeting;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 
 public class Config {
-    public static final int DEVICE_ONLY_FACE = 0;//人脸签到广告机
-    public static final int DEVICE_FACE_CARD = 1;//人卡签到（电子班牌）
-    public static final int DEVICE_PASSAGE_ONLY_FACE = 2;//人脸闸机
-    public static final int DEVICE_PASSAGE_FACE_CARD = 3;//人卡闸机
-    public static final int DEVICE_SMALL_FACE = 4;//京东超脑签到机
+    public static final int DEVICE_MEETING = 5;
+    public static final int DEVICE_MEETING_ACCESS = 6;//小号会议门禁机
     public static int deviceType;
 
     private static final String TAG = "Config";

@@ -2,6 +2,7 @@ package com.yunbiao.yb_smart_meeting;
 
 import android.app.Application;
 import android.app.smdt.SmdtManager;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -10,11 +11,12 @@ import com.android.xhapimanager.XHApiManager;
 import com.bumptech.glide.Glide;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
 import com.yunbiao.yb_smart_meeting.afinel.Constants;
-import com.yunbiao.yb_smart_meeting.business.Speecher;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.exception.CrashHandler2;
+import com.yunbiao.yb_smart_meeting.receiver.MyProtectService;
 import com.yunbiao.yb_smart_meeting.utils.RestartAPPTool;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
+import com.yunbiao.yb_smart_meeting.xmpp.ServiceManager;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import org.xutils.x;
@@ -34,6 +36,7 @@ public class APP extends Application {
     private static int companyId;
     private static WelComeActivity activity;
     private static XHApiManager xhApiManager;
+    private static ServiceManager serviceManager;
 
     public static WelComeActivity getActivity() {
         return activity;
@@ -70,8 +73,6 @@ public class APP extends Application {
 //        initUM();
 
         initHttp();
-
-        Speecher.init(this);
     }
 
     //IO引脚
@@ -98,11 +99,11 @@ public class APP extends Application {
             return;
         }
 
-        try{
-            xhApiManager = new XHApiManager();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            xhApiManager = new XHApiManager();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -282,7 +283,25 @@ public class APP extends Application {
         RestartAPPTool.restartAPP(getContext());
     }
 
+    public static void startXMPP(){
+        serviceManager = new ServiceManager(getContext());
+        serviceManager.startService();
+    }
+    public static void stopXMPP(){
+        serviceManager.stopService();
+    }
+
+    public static void bindProtectService(){
+        //开启看门狗,只会在开机是启动一次
+        getContext().startService(new Intent(APP.getContext(), MyProtectService.class));
+    }
+
+    public static void unbindProtectService(){
+        getContext().stopService(new Intent(APP.getContext(), MyProtectService.class));
+    }
+
     public static void exit() {
+        unbindProtectService();
         //关闭整个应用
         System.exit(0);
     }

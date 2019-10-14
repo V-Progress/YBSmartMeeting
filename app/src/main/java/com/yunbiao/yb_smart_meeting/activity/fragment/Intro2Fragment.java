@@ -1,16 +1,11 @@
 package com.yunbiao.yb_smart_meeting.activity.fragment;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
@@ -59,12 +54,18 @@ public class Intro2Fragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MediaFragment.NoMediaDataEvent event){
-        viewPager.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                viewPager.setCurrentItem(1);
+        if(viewPager != null){
+            int currentItem = viewPager.getCurrentItem();
+            if(currentItem == 1){
+                return;
             }
-        },1500);
+            viewPager.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    viewPager.setCurrentItem(1);
+                }
+            },1500);
+        }
     }
 
     class PageAdapter extends FragmentPagerAdapter {

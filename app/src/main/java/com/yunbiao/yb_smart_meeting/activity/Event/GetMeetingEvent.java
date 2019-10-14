@@ -18,4 +18,11 @@ public class GetMeetingEvent {
     public void setState(int state) {
         this.state = state;
     }
+
+    @Override
+    public String toString() {
+        return "GetMeetingEvent{" +
+                "state=" + state +
+                '}';
+    }
 }

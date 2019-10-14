@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ExtCameraManager {
     private static final String TAG = "ExtCameraManager";
@@ -20,14 +22,18 @@ public class ExtCameraManager {
 
     private static ExtCameraManager surfaceCameraManager = new ExtCameraManager();
     private List<Camera.Size> supportedPreviewSizes;
-    private final ExecutorService executorService;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     public static ExtCameraManager instance(){
         return surfaceCameraManager;
     }
 
     private ExtCameraManager(){
-        executorService = Executors.newFixedThreadPool(2);
+        scheduledExecutorService = Executors.newScheduledThreadPool(2);
+    }
+
+    private void delayRun(Runnable runnable){
+        scheduledExecutorService.schedule(runnable,300, TimeUnit.MILLISECONDS);
     }
 
 //    public void init(TextureView rgbTexture, TextureView nirTexture){
@@ -121,7 +127,7 @@ public class ExtCameraManager {
                 mListener.onSurfaceReady();
             }
             releaseRGBCamera();
-            executorService.execute(new Runnable() {
+            delayRun(new Runnable() {
                 @Override
                 public void run() {
                     mRGBCamera = doOpenCamera(CameraType.getRGB(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mRGBCallback);
@@ -143,7 +149,7 @@ public class ExtCameraManager {
         @Override
         public void surfaceCreated(final SurfaceHolder holder) {
             releaseNIRCamera();
-            executorService.execute(new Runnable() {
+            delayRun(new Runnable() {
                 @Override
                 public void run() {
                     mNIRCamera = doOpenCamera(CameraType.getNIR(),CameraSettings.getCameraPreviewWidth(),CameraSettings.getCameraPreviewHeight(),holder,mNIRCallback);

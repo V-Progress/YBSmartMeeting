@@ -32,18 +32,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RecordFragment extends BaseFragment {
     private static final String TAG = "RecordFragment";
-    //    private MeetInfo mMeetInfo;
     private View rootView;
     private RecyclerView recyclerView;
     private TextView tvAlready;
     private TextView tvShould;
     private List<RecordInfo> mRecordList = new ArrayList<>();
     private SignAdapter signAdapter;
-    private List<Long> currNumberList = new ArrayList<>();
+    private Map<Long,RecordInfo> recordInfoMap = new HashMap<>();
 
     @Nullable
     @Override
@@ -88,20 +89,29 @@ public class RecordFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MeetingEvent event) {
         Log.e(TAG, "update: 收到会议更新事件");
+        MeetInfo meetInfo = event.getMeetInfo();
         int state = event.getState();
         switch (state) {
             case MeetingEvent.GET_MEETING_FAILED:
+                showTips("获取会议失败");
+                break;
             case MeetingEvent.NO_MEETING:
                 showTips("暂无会议");
-                break;
             case MeetingEvent.PRELOAD:
             case MeetingEvent.BEGAN:
-                initData(event.getMeetInfo());
+                initData(meetInfo);
+                break;
+            case MeetingEvent.ENDED:
                 break;
         }
     }
 
     private void initData(MeetInfo meetInfo) {
+        if(meetInfo == null){
+            showTips("获取会议失败");
+            return;
+        }
+
         long id = meetInfo.getId();
 
         List<RecordInfo> recordInfos = DaoManager.get().queryRecordByMeetId(id);
@@ -109,52 +119,72 @@ public class RecordFragment extends BaseFragment {
         Collections.sort(recordInfos, new Comparator<RecordInfo>() {
             @Override
             public int compare(RecordInfo o1, RecordInfo o2) {
-                //倒序：左大于右返回正值
-                return o1.getTime() < o2.getTime() ? 1 : o1.getTime() > o2.getTime() ? -1 : 0;
+                //倒序：左大于右返回正值 //正序：左边大时返回负值
+                return o1.getTime() < o2.getTime() ? -1 : o1.getTime() > o2.getTime() ? 1 : 0;
             }
         });
 
-        currNumberList.clear();
+        recordInfoMap.clear();
+        for (RecordInfo recordInfo : recordInfos) {
+            long meetEntryId = recordInfo.getMeetEntryId();
+            if (recordInfoMap.containsKey(meetEntryId)) {
+                RecordInfo recordInfo1 = recordInfoMap.get(meetEntryId);
+                long time1 = recordInfo1.getTime();
+                long time = recordInfo.getTime();
+                if(time < time1){
+                    recordInfoMap.put(meetEntryId,recordInfo);
+                }
+            } else {
+                recordInfoMap.put(meetEntryId,recordInfo);
+            }
+        }
+
         mRecordList.clear();
         if (recordInfos != null) {
-            mRecordList.addAll(recordInfos);
+            mRecordList.addAll(recordInfoMap.values());
         }
         signAdapter.notifyDataSetChanged();
 
         hideLoadingAndTips();
 
-        intNumber(recordInfos, entryInfos);
+        intNumber(entryInfos);
     }
 
-    private void intNumber(List<RecordInfo> recordInfos, List<EntryInfo> entryInfos) {
-        int size = recordInfos == null ? 0 : recordInfos.size();
-        int total = entryInfos == null ? 0 : entryInfos.size();
-        Log.e(TAG, "initData: ---- " + size + " --- " + total);
-
-        if (recordInfos != null) {
-            for (RecordInfo recordInfo : recordInfos) {
-                addNumber(recordInfo);
-            }
-        }
+    private void intNumber(List<EntryInfo> entryInfos) {
         tvShould.setText(entryInfos.size() + "");
+        addNumber();
     }
 
-    private void addNumber(RecordInfo recordInfo) {
-        if (!currNumberList.contains(recordInfo.getMeetEntryId())) {
-            currNumberList.add(recordInfo.getMeetEntryId());
-            tvAlready.setText(currNumberList.size() + "");
-        }
+    private void addNumber() {
+        tvAlready.post(new Runnable() {
+            @Override
+            public void run() {
+                tvAlready.setText(recordInfoMap.size() + "");
+            }
+        });
     }
 
     public void addRecord(final RecordInfo recordInfo) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mRecordList.add(0, recordInfo);
-                signAdapter.notifyDataSetChanged();
-                addNumber(recordInfo);
+        boolean isUpdate = false;
+        long meetEntryId = recordInfo.getMeetEntryId();
+        if(recordInfoMap.containsKey(meetEntryId)){
+            RecordInfo recordInfo1 = recordInfoMap.get(meetEntryId);
+            long time = recordInfo.getTime();
+            long time1 = recordInfo1.getTime();
+            if(time < time1){
+                recordInfoMap.put(meetEntryId,recordInfo);
+                isUpdate = true;
             }
-        });
+        } else {
+            recordInfoMap.put(meetEntryId,recordInfo);
+            isUpdate = true;
+        }
+
+        if(isUpdate){
+            mRecordList.add(0, recordInfo);
+            signAdapter.notifyDataSetChanged();
+            addNumber();
+        }
     }
 
     class SignAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

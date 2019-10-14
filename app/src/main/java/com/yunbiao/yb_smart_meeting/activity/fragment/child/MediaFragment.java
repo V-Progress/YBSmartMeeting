@@ -11,10 +11,13 @@ import com.dingmouren.layoutmanagergroup.viewpager.ViewPagerLayoutManager;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.fragment.BaseFragment;
+import com.yunbiao.yb_smart_meeting.adapter.MediaAdapter;
 import com.yunbiao.yb_smart_meeting.business.Downloader;
 import com.yunbiao.yb_smart_meeting.db2.AdvertInfo;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +110,7 @@ public class MediaFragment extends BaseFragment {
         long id = meetInfo.getId();
         final List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(id);
         if (advertInfos == null || advertInfos.size() <= 0) {
+            EventBus.getDefault().post(new NoMediaDataEvent());
             showTips("暂无宣传资源");
             return;
         }

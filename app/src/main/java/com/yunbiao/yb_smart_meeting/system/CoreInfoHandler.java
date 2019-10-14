@@ -47,6 +47,7 @@ public class CoreInfoHandler {
     private final static int ALWAYS_OPEN = 100;//门禁常开
     private final static int UPDATE_COMPANY = 101;//更新公司信息
     private final static int UPDATE_INTRODUCE = 33;
+    private final static int UPDATE_MEETING = 31;//更新会议信息
 
     public static boolean isOnline = false;
 
@@ -177,6 +178,8 @@ public class CoreInfoHandler {
                 break;
             case UPDATE_INTRODUCE:
                 break;
+            case UPDATE_MEETING:
+                break;
             default:
                 break;
         }
@@ -193,7 +196,6 @@ public class CoreInfoHandler {
                     public void onError(Call call, Exception e, int id) {
                         Log.e(TAG, "onError: " + (e == null ? "NULL" : e.getMessage()));
                     }
-
                     @Override
                     public void onResponse(String response, int id) {
                         Log.e(TAG, "onResponse: " + response);
