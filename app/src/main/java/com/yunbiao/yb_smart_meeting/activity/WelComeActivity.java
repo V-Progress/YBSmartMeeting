@@ -23,7 +23,7 @@ import com.jdjr.risk.face.local.user.FaceUser;
 import com.jdjr.risk.face.local.user.FaceUserManager;
 import com.jdjr.risk.face.local.verify.VerifyResult;
 import com.yunbiao.yb_smart_meeting.APP;
-import com.yunbiao.yb_smart_meeting.Access.MeetingLoader;
+import com.yunbiao.yb_smart_meeting.business.MeetingLoader;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
 import com.yunbiao.yb_smart_meeting.activity.fragment.Intro2Fragment;

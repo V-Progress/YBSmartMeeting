@@ -27,8 +27,10 @@ import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
 import com.yunbiao.yb_smart_meeting.business.DialogUtil;
 import com.yunbiao.yb_smart_meeting.business.Downloader;
 import com.yunbiao.yb_smart_meeting.business.HardwareUtil;
+import com.yunbiao.yb_smart_meeting.business.MeetingLoader;
 import com.yunbiao.yb_smart_meeting.business.RecordManager;
 import com.yunbiao.yb_smart_meeting.business.ResourceCleanManager;
+import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
@@ -119,12 +121,6 @@ public class WelComeSmallActivity extends BaseGpioActivity {
 
         @Override
         public void onFaceVerify(VerifyResult verifyResult) {
-            Log.e(TAG, "onFaceVerify: 认证结果：" + verifyResult.getResult());
-            FaceUser user = verifyResult.getUser();
-            if (user != null) {
-                Log.e(TAG, "onFaceVerify: " + user.getUserId());
-            }
-
             if (isAlwayOpen()) {
                 return;
             }
@@ -180,7 +176,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
         public void noMeeting() {
             setMeetingName("暂无会议");
             EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_NO_MEETING));
-            clearUser();
+            RecordManager.get().clearAllRecord();
         }
 
         @Override
@@ -203,7 +199,8 @@ public class WelComeSmallActivity extends BaseGpioActivity {
         @Override
         public void onEnded(MeetInfo currentMeetInfo) {
             EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_ENDED,currentMeetInfo));
-            MeetingLoader.i().getAllMeeting(loadListener);
+
+            DaoManager.get().deleteAllByMeetId(currentMeetInfo.getId());
         }
 
         @Override
@@ -229,6 +226,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
     }
 
     private void loadUser(final MeetInfo meetInfo){
+        clearUser();
         setMeetingName("当前会议：" + meetInfo.getName()
                 + "\n会议主讲：" + meetInfo.getUserName()
                 + "\n开始时间：" + meetInfo.getBeginTime()
@@ -240,9 +238,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
                 MeetingLoader.i().loadNext(meetInfo.getNum(),loadListener);
             }
         },2000);
-
         RecordManager.get().setCurrMeet(meetInfo.getId());
-
         DialogUtil.showProgress(WelComeSmallActivity.this,"正在下载头像");
         Downloader.downloadHead(meetInfo, new Downloader.DownloadListener() {
             @Override

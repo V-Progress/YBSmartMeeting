@@ -96,9 +96,14 @@ public class FaceFrameView extends SurfaceView {
         pointPaint.setStrokeWidth(2);
     }
 
+    private boolean mDrawFlag = false;
+
     private SurfaceHolder.Callback callback = new SurfaceHolder.Callback() {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
+            synchronized (this) {
+                mDrawFlag = true;
+            }
             surfaceHolder = holder;
             if (mCallback != null) {
                 mCallback.surfaceCreated(holder);
@@ -114,6 +119,9 @@ public class FaceFrameView extends SurfaceView {
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
+            synchronized (this) {
+                mDrawFlag = false;
+            }
             stopDrawThread();
             if (mCallback != null) {
                 mCallback.surfaceDestroyed(holder);
@@ -159,47 +167,57 @@ public class FaceFrameView extends SurfaceView {
      * 具体绘制方法
      */
     private void drawFace() {
-        Canvas canvas = null;
-        try {
-            synchronized (surfaceHolder) {
-                canvas = surfaceHolder.lockCanvas();
+        synchronized (surfaceHolder) {
+            if (mDrawFlag) {
+                Canvas canvas = null;
+                try {
+                    canvas = surfaceHolder.lockCanvas();
+                    drawImpl(canvas);
 
-                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
-                if (basePropertyMap != null) {
-                    for (Map.Entry<Long, FaceFrameBean> faceEntry : faceFrameBeanMap.entrySet()) {
-                        Long key = faceEntry.getKey();
-                        if (!basePropertyMap.containsKey(key)) {
-                            faceFrameBeanMap.remove(key);
-                        }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(canvas != null){
+                        surfaceHolder.unlockCanvasAndPost(canvas);
                     }
-
-                    for (Map.Entry<Long, BaseProperty> entry : basePropertyMap.entrySet()) {
-                        Long key = entry.getKey();
-                        if (key == 0) {
-                            continue;
-                        }
-                        BaseProperty value = entry.getValue();
-                        if (faceFrameBeanMap.containsKey(key)) {
-                            faceFrameBeanMap.get(key).update(value);
-                        } else {
-                            faceFrameBeanMap.put(key, new FaceFrameBean(value));
-                        }
-                    }
-
-                    for (Map.Entry<Long, FaceFrameBean> entry : faceFrameBeanMap.entrySet()) {
-                        FaceFrameBean bean = entry.getValue();
-                        bean.draw(entry.getKey(), scanFrame, scanLine, canvas, rectPaint, linePaint, textPaint, pointPaint);
-                    }
-                } else {
-                    faceFrameBeanMap.clear();
-                    stopDrawThread();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            surfaceHolder.unlockCanvasAndPost(canvas);
+        }
+    }
+
+    private void drawImpl(Canvas canvas) {
+        if (canvas != null) {
+            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+
+            if (basePropertyMap != null) {
+                for (Map.Entry<Long, FaceFrameBean> faceEntry : faceFrameBeanMap.entrySet()) {
+                    Long key = faceEntry.getKey();
+                    if (!basePropertyMap.containsKey(key)) {
+                        faceFrameBeanMap.remove(key);
+                    }
+                }
+
+                for (Map.Entry<Long, BaseProperty> entry : basePropertyMap.entrySet()) {
+                    Long key = entry.getKey();
+                    if (key == 0) {
+                        continue;
+                    }
+                    BaseProperty value = entry.getValue();
+                    if (faceFrameBeanMap.containsKey(key)) {
+                        faceFrameBeanMap.get(key).update(value);
+                    } else {
+                        faceFrameBeanMap.put(key, new FaceFrameBean(value));
+                    }
+                }
+
+                for (Map.Entry<Long, FaceFrameBean> entry : faceFrameBeanMap.entrySet()) {
+                    FaceFrameBean bean = entry.getValue();
+                    bean.draw(entry.getKey(), scanFrame, scanLine, canvas, rectPaint, linePaint, textPaint, pointPaint);
+                }
+            } else {
+                faceFrameBeanMap.clear();
+                stopDrawThread();
+            }
         }
     }
 
