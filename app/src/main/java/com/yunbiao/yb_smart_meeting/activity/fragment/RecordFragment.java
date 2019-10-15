@@ -5,7 +5,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -88,6 +87,7 @@ public class RecordFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MeetingEvent event) {
+        clearData();
         Log.e(TAG, "update: 收到会议更新事件");
         MeetInfo meetInfo = event.getMeetInfo();
         int state = event.getState();
@@ -95,15 +95,23 @@ public class RecordFragment extends BaseFragment {
             case MeetingEvent.GET_MEETING_FAILED:
                 showTips("获取会议失败");
                 break;
-            case MeetingEvent.NO_MEETING:
+            case MeetingEvent.GET_NO_MEETING:
                 showTips("暂无会议");
-            case MeetingEvent.PRELOAD:
-            case MeetingEvent.BEGAN:
+                break;
+            case MeetingEvent.LOAD_PRELOAD:
+            case MeetingEvent.LOAD_BEGAN:
                 initData(meetInfo);
                 break;
-            case MeetingEvent.ENDED:
+            case MeetingEvent.LOAD_ENDED:
                 break;
         }
+    }
+
+    private void clearData(){
+        recordInfoMap.clear();
+        mRecordList.clear();
+        signAdapter.notifyDataSetChanged();
+        intNumber(new ArrayList<EntryInfo>());
     }
 
     private void initData(MeetInfo meetInfo) {

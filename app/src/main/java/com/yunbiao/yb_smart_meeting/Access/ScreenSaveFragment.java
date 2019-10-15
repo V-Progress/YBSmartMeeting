@@ -59,17 +59,17 @@ public class ScreenSaveFragment extends BaseFragment {
     public void update(MeetingEvent event) {
         int state = event.getState();
         MeetInfo meetInfo = event.getMeetInfo();
-        if (state == MeetingEvent.NO_MEETING) {
+        if (state == MeetingEvent.GET_NO_MEETING) {
             flClock.setVisibility(View.VISIBLE);
             llMeetingCurr.setVisibility(View.GONE);
-        } else if (state == MeetingEvent.PRELOAD || state == MeetingEvent.BEGAN/* || state == MeetingEvent.ENDED*/) {
+        } else if (state == MeetingEvent.LOAD_PRELOAD || state == MeetingEvent.LOAD_BEGAN/* || state == MeetingEvent.LOAD_ENDED*/) {
             flClock.setVisibility(View.GONE);
             llMeetingCurr.setVisibility(View.VISIBLE);
             tvName.setText(meetInfo.getName());
             tvTime.setText(meetInfo.getBeginTime() + "~" + meetInfo.getEndTime());
             int color;
             String stateStr;
-            if (state == MeetingEvent.PRELOAD) {
+            if (state == MeetingEvent.LOAD_PRELOAD) {
                 color = Color.WHITE;
                 stateStr = "即将开始";
             } else {

@@ -25,7 +25,6 @@ import com.jdjr.risk.face.local.verify.VerifyResult;
 import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.Access.MeetingLoader;
 import com.yunbiao.yb_smart_meeting.R;
-import com.yunbiao.yb_smart_meeting.activity.Event.GetMeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
 import com.yunbiao.yb_smart_meeting.activity.fragment.Intro2Fragment;
 import com.yunbiao.yb_smart_meeting.activity.fragment.RecordFragment;
@@ -35,6 +34,7 @@ import com.yunbiao.yb_smart_meeting.business.LocateManager;
 import com.yunbiao.yb_smart_meeting.business.RecordManager;
 import com.yunbiao.yb_smart_meeting.business.ResourceCleanManager;
 import com.yunbiao.yb_smart_meeting.common.UpdateVersionControl;
+import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
@@ -181,13 +181,12 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
 
         @Override
         public void onError() {
-            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.GET_MEETING_FAILED));
             EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_MEETING_FAILED));
         }
 
         @Override
         public void onSuccess() {
-            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.COMPLETE));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_COMPLETE_SUCESS));
             //加载当前会议
             MeetingLoader.i().loadCurrentMeeting(loadListener);
 
@@ -197,8 +196,9 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
 
         @Override
         public void noMeeting() {
-            EventBus.getDefault().post(new GetMeetingEvent(GetMeetingEvent.NO_MEETING));
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.NO_MEETING));
+            loadQRCode(null);
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_NO_MEETING));
+            RecordManager.get().clearAllRecord();
         }
 
         @Override
@@ -216,21 +216,22 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
             });
 
             loadQRCode(currentMeetInfo);
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.PRELOAD, currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_PRELOAD, currentMeetInfo));
             loadUser(currentMeetInfo);
         }
 
         @Override
         public void onBegan(MeetInfo currentMeetInfo) {
             loadQRCode(currentMeetInfo);
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.BEGAN, currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_BEGAN, currentMeetInfo));
             loadUser(currentMeetInfo);
         }
 
         @Override
         public void onEnded(MeetInfo currentMeetInfo) {
-            clearUser();
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.ENDED, currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_ENDED, currentMeetInfo));
+
+            DaoManager.get().deleteAllByMeetId(currentMeetInfo.getId());
         }
 
         @Override
@@ -243,6 +244,10 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if(meetInfo == null){
+                    Glide.clear(ivMainCode);
+                    return;
+                }
                 Log.e(TAG, "run: 加载二维码");
                 String codeUrl = meetInfo.getCodeUrl();
                 Glide.with(WelComeActivity.this).load(codeUrl).asBitmap().into(ivMainCode);
@@ -261,6 +266,7 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
     }
 
     private void loadUser(final MeetInfo meetInfo) {
+        clearUser();
         RecordManager.get().setCurrMeet(meetInfo.getId());
         Downloader.downloadHead(meetInfo, new Downloader.DownloadListener() {
             @Override

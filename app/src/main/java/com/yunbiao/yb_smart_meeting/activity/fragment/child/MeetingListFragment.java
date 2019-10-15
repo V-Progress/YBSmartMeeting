@@ -5,19 +5,18 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.yunbiao.yb_smart_meeting.R;
-import com.yunbiao.yb_smart_meeting.activity.Event.GetMeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.fragment.BaseFragment;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
-import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -38,7 +37,7 @@ public class MeetingListFragment extends BaseFragment {
     @Override
     protected void initView() {
         rlvMeetingList = find(R.id.rlv_meeting_list);
-        rlvMeetingList.setLayoutManager(new LinearLayoutManager(getActivity(), OrientationHelper.VERTICAL,false));
+        rlvMeetingList.setLayoutManager(new LinearLayoutManager(getActivity(), OrientationHelper.VERTICAL, false));
     }
 
     @Override
@@ -46,21 +45,36 @@ public class MeetingListFragment extends BaseFragment {
 
     }
 
+    private static final String TAG = "MeetingListFragment";
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(MeetingEvent event){
+    public void update(MeetingEvent event) {
+        Log.e(TAG, "update: " + event.getState());
+        switch (event.getState()) {
+            case MeetingEvent.GET_COMPLETE_SUCESS:
+            case MeetingEvent.GET_MEETING_FAILED:
+            case MeetingEvent.GET_NO_MEETING:
+                loadMeeting();
+                break;
+        }
+    }
+
+    public void loadMeeting() {
         List<MeetInfo> meetInfos = DaoManager.get().queryAll(MeetInfo.class);
+        Log.e(TAG, "loadMeeting: ----- " + (meetInfos != null ? meetInfos.size() : 0));
         Collections.sort(meetInfos, new Comparator<MeetInfo>() {
             @Override
             public int compare(MeetInfo o1, MeetInfo o2) {
                 //倒序：左大于右返回正值 //正序：左边大时返回负值
-                return o1.getNum() < o2.getNum() ? -1 : o1.getNum() > o2.getNum() ? 1 : 0 ;
+                return o1.getNum() < o2.getNum() ? -1 : o1.getNum() > o2.getNum() ? 1 : 0;
             }
         });
         rlvMeetingList.setAdapter(new MeetingAdapter(meetInfos));
     }
 
-    class MeetingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    class MeetingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         List<MeetInfo> list;
+
         public MeetingAdapter(List<MeetInfo> meetInfos) {
             list = meetInfos;
         }
@@ -68,13 +82,13 @@ public class MeetingListFragment extends BaseFragment {
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            return new VH(LayoutInflater.from(getActivity()).inflate(R.layout.item_meeting,viewGroup,false));
+            return new VH(LayoutInflater.from(getActivity()).inflate(R.layout.item_meeting, viewGroup, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
             MeetInfo meetInfo = list.get(i);
-            ((VH)viewHolder).bindData(meetInfo,i);
+            ((VH) viewHolder).bindData(meetInfo, i);
         }
 
         @Override
@@ -82,7 +96,7 @@ public class MeetingListFragment extends BaseFragment {
             return list.size();
         }
 
-        class VH extends RecyclerView.ViewHolder{
+        class VH extends RecyclerView.ViewHolder {
             private final TextView name;
             private final TextView number;
             private final TextView begin;
@@ -98,8 +112,8 @@ public class MeetingListFragment extends BaseFragment {
                 rootView = itemView.findViewById(R.id.ll_root);
             }
 
-            public void bindData(MeetInfo meetInfo, int i){
-                if(i % 2 == 0){
+            public void bindData(MeetInfo meetInfo, int i) {
+                if (i % 2 == 0) {
                     rootView.setBackgroundColor(Color.parseColor("#051C60"));
                 } else {
                     rootView.setBackgroundColor(Color.parseColor("#156094"));

@@ -169,6 +169,19 @@ public class DaoManager {
         return SUCCESS;
     }
 
+    public <T>long deleteAllByMeetId(long meetId){
+        if(daoSession == null){
+            return FAILURE;
+        }
+        List<RecordInfo> recordInfos = queryRecordByMeetId(meetId);
+        if(recordInfos != null){
+            for (RecordInfo recordInfo : recordInfos) {
+                delete(recordInfo);
+            }
+        }
+        return SUCCESS;
+    }
+
     public long deleteAllMeeting(){
         if(daoSession == null){
             return FAILURE;

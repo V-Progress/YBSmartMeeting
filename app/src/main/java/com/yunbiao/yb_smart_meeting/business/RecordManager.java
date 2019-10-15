@@ -243,4 +243,7 @@ public class RecordManager {
         }
     }
 
+    public void clearAllRecord(){
+        DaoManager.get().deleteAll(RecordInfo.class);
+    }
 }

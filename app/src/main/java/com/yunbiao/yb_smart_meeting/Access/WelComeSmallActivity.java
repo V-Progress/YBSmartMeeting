@@ -179,7 +179,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
         @Override
         public void noMeeting() {
             setMeetingName("暂无会议");
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.NO_MEETING));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_NO_MEETING));
             clearUser();
         }
 
@@ -190,19 +190,19 @@ public class WelComeSmallActivity extends BaseGpioActivity {
 
         @Override
         public void onPreload(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.PRELOAD,currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_PRELOAD,currentMeetInfo));
             loadUser(currentMeetInfo);
         }
 
         @Override
         public void onBegan(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.BEGAN,currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_BEGAN,currentMeetInfo));
             loadUser(currentMeetInfo);
         }
 
         @Override
         public void onEnded(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.ENDED,currentMeetInfo));
+            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_ENDED,currentMeetInfo));
             MeetingLoader.i().getAllMeeting(loadListener);
         }
 

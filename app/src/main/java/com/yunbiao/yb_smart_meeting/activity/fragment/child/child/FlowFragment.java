@@ -175,8 +175,13 @@ public class FlowFragment extends BaseFragment {
                 }, endDate);
             }
 
-            viewHolder.tvFlowName.setText(flowInfo.getName());
-            viewHolder.tvFlowTime.setText(flowInfo.getBegin());
+            if(position % 2 != 0){
+                viewHolder.tvFlowName.setText(flowInfo.getBegin());
+                viewHolder.tvFlowTime.setText(flowInfo.getName());
+            } else {
+                viewHolder.tvFlowName.setText(flowInfo.getName());
+                viewHolder.tvFlowTime.setText(flowInfo.getBegin());
+            }
             return convertView;
         }
 

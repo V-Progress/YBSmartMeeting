@@ -5,11 +5,13 @@ import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import java.util.Objects;
 
 public class MeetingEvent {
+    public static final int GET_COMPLETE_SUCESS = 9;
     public static final int GET_MEETING_FAILED = -2;
-    public static final int NO_MEETING = -1;//没有会议
-    public static final int PRELOAD = 0;//预加载
-    public static final int BEGAN = 1;//已开始
-    public static final int ENDED = 2;//已结束
+    public static final int GET_NO_MEETING = -1;//没有会议
+
+    public static final int LOAD_PRELOAD = 0;//预加载
+    public static final int LOAD_BEGAN = 1;//已开始
+    public static final int LOAD_ENDED = 2;//已结束
 
     private int state;
     private MeetInfo meetInfo;

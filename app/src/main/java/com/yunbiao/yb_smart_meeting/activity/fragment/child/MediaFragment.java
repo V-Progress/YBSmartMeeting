@@ -90,12 +90,12 @@ public class MediaFragment extends BaseFragment {
 
         switch (state) {
             case MeetingEvent.GET_MEETING_FAILED:
-            case MeetingEvent.NO_MEETING:
+            case MeetingEvent.GET_NO_MEETING:
                 rlvMedia.setVisibility(View.GONE);
                 showTips("暂无会议");
                 break;
-            case MeetingEvent.PRELOAD:
-            case MeetingEvent.BEGAN:
+            case MeetingEvent.LOAD_PRELOAD:
+            case MeetingEvent.LOAD_BEGAN:
                 loadAdvert(meetInfo);
                 break;
         }

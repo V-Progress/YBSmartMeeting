@@ -135,6 +135,10 @@ public class MeetingLoader {
                             }
                             return;
                         }
+
+                        //清除数据库
+                        clearDB();
+
                         if (meetingResponse.getStatus() == 2) {
                             if (loadListener != null) {
                                 loadListener.noMeeting();
@@ -142,9 +146,6 @@ public class MeetingLoader {
                             }
                             return;
                         }
-
-                        //清除数据库
-                        clearDB();
 
                         //删除不存在的会议
                         deleteNoExist(meetingResponse);
@@ -157,7 +158,7 @@ public class MeetingLoader {
 
     //清除数据库
     public void clearDB() {
-        DaoManager.get().deleteAllMeeting();
+        DaoManager.get().deleteAll(MeetInfo.class);
         DaoManager.get().deleteAll(EntryInfo.class);
         DaoManager.get().deleteAll(FlowInfo.class);
         DaoManager.get().deleteAll(AdvertInfo.class);

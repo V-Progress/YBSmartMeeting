@@ -3,6 +3,7 @@ package com.yunbiao.yb_smart_meeting.activity.fragment.child;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 import android.widget.TextView;
 
 import com.yunbiao.yb_smart_meeting.R;
@@ -27,6 +28,7 @@ public class CurrFragment extends BaseFragment {
     private EntryGirdFragment outsideFragment;
     private EntryGirdFragment guestFragment;
     private FlowFragment flowFragment;
+    private View llMeetingInfo;
 
     @Override
     protected int setLayout() {
@@ -38,6 +40,7 @@ public class CurrFragment extends BaseFragment {
         tvCurrName = find(R.id.tv_curr_meeting_name);
         tvCurrTime = find(R.id.tv_curr_meeting_time);
         tvCurrState = find(R.id.tv_curr_meeting_state);
+        llMeetingInfo = find(R.id.ll_meeting_info);
     }
 
     @Override
@@ -47,33 +50,34 @@ public class CurrFragment extends BaseFragment {
 
     @Override
     public void update(MeetingEvent event) {
+        removeAllChild();
         MeetInfo meetInfo = event.getMeetInfo();
         String name = "暂无会议";
         String time = "";
         String state = "";
         int stateColor = 0;
         switch (event.getState()) {
-            case MeetingEvent.PRELOAD:
+            case MeetingEvent.LOAD_PRELOAD:
                 state = "即将开始";
                 name = meetInfo.getName();
                 time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
                 stateColor = Color.RED;
                 loadMeetingInfo(meetInfo);
                 break;
-            case MeetingEvent.BEGAN:
+            case MeetingEvent.LOAD_BEGAN:
                 state = "正在进行";
                 name = meetInfo.getName();
                 time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
                 stateColor = Color.GREEN;
                 loadMeetingInfo(meetInfo);
                 break;
-            case MeetingEvent.ENDED:
+            case MeetingEvent.LOAD_ENDED:
                 state = "已结束";
                 name = meetInfo.getName();
                 time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
                 stateColor = Color.GRAY;
                 break;
-            case MeetingEvent.NO_MEETING:
+            case MeetingEvent.GET_NO_MEETING:
                 showTips("暂无会议");
                 break;
         }
@@ -110,6 +114,14 @@ public class CurrFragment extends BaseFragment {
         }
     }
 
+    private void removeAllChild(){
+        llMeetingInfo.setVisibility(View.GONE);
+        removeFragment(insideFragment);
+        removeFragment(outsideFragment);
+        removeFragment(guestFragment);
+        removeFragment(flowFragment);
+    }
+
     private void loadMeetingInfo(MeetInfo meetInfo) {
         if (meetInfo == null) {
             showTips("获取会议失败");
@@ -117,12 +129,7 @@ public class CurrFragment extends BaseFragment {
         }
 
         d("加载参会人员");
-
-        removeFragment(insideFragment);
-        removeFragment(outsideFragment);
-        removeFragment(guestFragment);
-        removeFragment(flowFragment);
-
+        llMeetingInfo.setVisibility(View.VISIBLE);
         long id = meetInfo.getId();
         addFragment(id,3,"参会嘉宾");
         addFragment(id,1,"参会员工");
