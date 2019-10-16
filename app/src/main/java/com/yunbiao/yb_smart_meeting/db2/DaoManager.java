@@ -85,6 +85,18 @@ public class DaoManager {
         return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.Num.eq(num)).unique();
     }
 
+    public List<RecordInfo> queryRecordByMeetIdAndEntryId(long meetId,long meetEntryId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.MeetId.eq(meetId),RecordInfoDao.Properties.MeetEntryId.eq(meetEntryId)).list();
+    }
+
+    public boolean isSigned(long meetId,long meetEntryId){
+        List<RecordInfo> recordInfos = queryRecordByMeetIdAndEntryId(meetId, meetEntryId);
+        return recordInfos != null && recordInfos.size() > 0;
+    }
+
     public List<RecordInfo> queryRecordByMeetId(long meetId){
         if(daoMaster == null){
             return null;
@@ -92,7 +104,7 @@ public class DaoManager {
         return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.MeetId.eq(meetId)).list();
     }
 
-    public List<EntryInfo> queryEntryByMeetIdOrType(long meetId,int type){
+    public List<EntryInfo> queryEntryByMeetIdAndType(long meetId, int type){
         if(daoMaster == null){
             return null;
         }
@@ -121,6 +133,13 @@ public class DaoManager {
             return null;
         }
         return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.IsUpload.eq(isUpload)).list();
+    }
+
+    public RecordInfo queryRecordByTime(long time){
+        if(daoSession == null){
+            return null;
+        }
+        return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.Time.eq(time)).unique();
     }
 
     public List<AdvertInfo> queryAdvertByMeetId(long id){

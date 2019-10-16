@@ -90,38 +90,6 @@ public class CurrFragment extends BaseFragment {
         tvCurrTime.setText(time);
     }
 
-    private void removeFragment(Fragment fragment){
-        if(fragment != null && fragment.isAdded()){
-            getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
-        }
-    }
-
-    private void addFragment(long meetId,int type,String title){
-        List<EntryInfo> entryInfos = DaoManager.get().queryEntryByMeetIdOrType(meetId,type);
-        if(entryInfos != null && entryInfos.size() > 0){
-            FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-            if(type == 1){
-                insideFragment = EntryGirdFragment.newInstance(meetId, title);
-                fragmentTransaction.add(R.id.fl_inside_container,insideFragment);
-            } else if(type == 2){
-                outsideFragment = EntryGirdFragment.newInstance(meetId, title);
-                fragmentTransaction.add( R.id.fl_outside_container,outsideFragment);
-            } else {
-                guestFragment = EntryGirdFragment.newInstance(meetId, title);
-                fragmentTransaction.add(R.id.fl_guest_container,guestFragment);
-            }
-            fragmentTransaction.commitAllowingStateLoss();
-        }
-    }
-
-    private void removeAllChild(){
-        llMeetingInfo.setVisibility(View.GONE);
-        removeFragment(insideFragment);
-        removeFragment(outsideFragment);
-        removeFragment(guestFragment);
-        removeFragment(flowFragment);
-    }
-
     private void loadMeetingInfo(MeetInfo meetInfo) {
         if (meetInfo == null) {
             showTips("获取会议失败");
@@ -131,16 +99,49 @@ public class CurrFragment extends BaseFragment {
         d("加载参会人员");
         llMeetingInfo.setVisibility(View.VISIBLE);
         long id = meetInfo.getId();
-        addFragment(id,3,"参会嘉宾");
-        addFragment(id,1,"参会员工");
-        addFragment(id,2,"参会访客");
+        addFragment(id, 3, "参会嘉宾");
+        addFragment(id, 1, "参会员工");
+        addFragment(id, 2, "参会访客");
 
         List<FlowInfo> flowInfos = DaoManager.get().queryFlowByMeetId(id);
-        if(flowInfos != null && flowInfos.size() > 0){
+        if (flowInfos != null && flowInfos.size() > 0) {
             flowFragment = FlowFragment.newInstance(id);
-            getChildFragmentManager().beginTransaction().add(R.id.fl_flow_container,flowFragment).commitAllowingStateLoss();
+            getChildFragmentManager().beginTransaction().add(R.id.fl_flow_container, flowFragment).commitAllowingStateLoss();
         }
 
         hideLoadingAndTips();
     }
+
+
+    private void removeFragment(Fragment fragment) {
+        if (fragment != null && fragment.isAdded()) {
+            getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+        }
+    }
+
+    private void addFragment(long meetId, int type, String title) {
+        List<EntryInfo> entryInfos = DaoManager.get().queryEntryByMeetIdAndType(meetId, type);
+        if (entryInfos == null || entryInfos.size() <= 0) return;
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        if(type == 1){
+            insideFragment = EntryGirdFragment.newInstance(meetId,type,title);
+            fragmentTransaction.add(R.id.fl_inside_container, insideFragment);
+        } else if(type == 2){
+            outsideFragment = EntryGirdFragment.newInstance(meetId,type,title);
+            fragmentTransaction.add(R.id.fl_outside_container, outsideFragment);
+        } else if(type == 3){
+            guestFragment = EntryGirdFragment.newInstance(meetId,type,title);
+            fragmentTransaction.add(R.id.fl_guest_container, guestFragment);
+        }
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+    private void removeAllChild() {
+        llMeetingInfo.setVisibility(View.GONE);
+        removeFragment(insideFragment);
+        removeFragment(outsideFragment);
+        removeFragment(guestFragment);
+        removeFragment(flowFragment);
+    }
+
 }

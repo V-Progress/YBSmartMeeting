@@ -6,17 +6,56 @@
     android:layout_height="wrap_content"
     tools:context=".activity.fragment.child.child.EntryGirdFragment">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <RelativeLayout
         android:background="#4F000000"
-        android:paddingLeft="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="参会员工"
-        android:textColor="@color/white"
-        android:textSize="28dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="参会员工"
+            android:textColor="@color/white"
+            android:textSize="28dp" />
+
+        <LinearLayout
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="bottom"
+                android:textSize="18dp"
+                android:textColor="@color/white"
+                android:text="已签到"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_gravity="bottom"
+                android:src="@mipmap/signed"
+                android:layout_width="26dp"
+                android:layout_height="26dp" />
+
+            <TextView
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="10dp"
+                android:textSize="18dp"
+                android:textColor="@color/white"
+                android:text="未签到"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:layout_gravity="bottom"
+                android:src="@mipmap/nosigned"
+                android:layout_width="26dp"
+                android:layout_height="26dp" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <com.yunbiao.yb_smart_meeting.views.NoScrollGridView
         android:overScrollMode="never"

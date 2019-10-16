@@ -83,13 +83,15 @@ public class MediaFragment extends BaseFragment {
 
     @Override
     public void update(MeetingEvent event) {
+        if(event.getState() == MeetingEvent.GET_MEETING_FAILED){
+            return;
+        }
         MeetInfo meetInfo = event.getMeetInfo();
         int state = event.getState();
         advertInfos.clear();
         myAdapter.notifyDataSetChanged();
 
         switch (state) {
-            case MeetingEvent.GET_MEETING_FAILED:
             case MeetingEvent.GET_NO_MEETING:
                 rlvMedia.setVisibility(View.GONE);
                 showTips("暂无会议");

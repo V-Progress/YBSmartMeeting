@@ -87,14 +87,17 @@ public class RecordFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MeetingEvent event) {
+        if(event.getState() == MeetingEvent.GET_MEETING_FAILED){
+            return;
+        }
         clearData();
         Log.e(TAG, "update: 收到会议更新事件");
         MeetInfo meetInfo = event.getMeetInfo();
         int state = event.getState();
         switch (state) {
-            case MeetingEvent.GET_MEETING_FAILED:
-                showTips("获取会议失败");
-                break;
+//            case MeetingEvent.GET_MEETING_FAILED:
+//                showTips("获取会议失败");
+//                break;
             case MeetingEvent.GET_NO_MEETING:
                 showTips("暂无会议");
                 break;

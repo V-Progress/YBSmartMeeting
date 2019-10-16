@@ -49,10 +49,12 @@ public class MeetingListFragment extends BaseFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(MeetingEvent event) {
+        if(event.getState() == MeetingEvent.GET_MEETING_FAILED){
+            return;
+        }
         Log.e(TAG, "update: " + event.getState());
         switch (event.getState()) {
             case MeetingEvent.GET_COMPLETE_SUCESS:
-            case MeetingEvent.GET_MEETING_FAILED:
             case MeetingEvent.GET_NO_MEETING:
                 loadMeeting();
                 break;

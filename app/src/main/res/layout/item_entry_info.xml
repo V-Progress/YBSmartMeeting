@@ -2,13 +2,25 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
-    android:orientation="vertical">
+    android:padding="10dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <FrameLayout
         android:layout_centerInParent="true"
-        android:id="@+id/civ_head"
         android:layout_width="60dp"
-        android:layout_height="60dp" />
+        android:layout_height="60dp" >
 
+        <ImageView
+            android:layout_marginRight="-3dp"
+            android:layout_marginBottom="-3dp"
+            android:layout_gravity="bottom|right"
+            android:id="@+id/iv_marker"
+            android:src="@mipmap/nosigned"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/civ_head"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 </RelativeLayout>

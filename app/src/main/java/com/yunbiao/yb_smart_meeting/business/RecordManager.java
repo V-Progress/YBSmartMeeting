@@ -133,6 +133,7 @@ public class RecordManager {
         File imgFile = saveBitmap(recordInfo.getTime(), faceImageBytes);
         recordInfo.setHeadPath(imgFile.getPath());
         recordInfo.setUpload(false);
+        DaoManager.get().addOrUpdate(recordInfo);
 
         Log.e(TAG, "checkPassage: ----  可以通过");
         EventBus.getDefault().post(recordInfo);
@@ -144,6 +145,7 @@ public class RecordManager {
     }
 
     private void sendRecord(final RecordInfo recordInfo) {
+        final RecordInfo currRecordInfo = DaoManager.get().queryRecordByTime(recordInfo.getTime());
         Map<String, String> params = new HashMap<>();
         params.put("comId", SpUtils.getInt(SpUtils.COMPANY_ID) + "");
         params.put("meetId", recordInfo.getMeetId() + "");
@@ -163,18 +165,18 @@ public class RecordManager {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        recordInfo.setUpload(false);
+                        currRecordInfo.setUpload(false);
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
-                        recordInfo.setUpload(true);
+                        currRecordInfo.setUpload(true);
                     }
 
                     @Override
                     public void onAfter(int id) {
-                        long add = DaoManager.get().addOrUpdate(recordInfo);
-                        Log.e(TAG, "onResponse: 添加记录： " + add);
+                        long add = DaoManager.get().addOrUpdate(currRecordInfo);
+                        Log.e(TAG, "onResponse: 修改记录：" + add);
                     }
                 });
     }
