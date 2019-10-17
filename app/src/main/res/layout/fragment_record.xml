@@ -12,6 +12,7 @@
         android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
+            android:overScrollMode="never"
             android:paddingTop="15dp"
             android:paddingLeft="10dp"
             android:id="@+id/rlv_record"
