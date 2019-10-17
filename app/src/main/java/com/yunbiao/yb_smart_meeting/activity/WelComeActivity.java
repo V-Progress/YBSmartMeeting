@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
 /**
  * Created by Administrator on 2018/11/26.
  */
@@ -250,7 +252,7 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
                 }
                 Log.e(TAG, "run: 加载二维码");
                 String codeUrl = meetInfo.getCodeUrl();
-                Glide.with(WelComeActivity.this).load(codeUrl).asBitmap().into(ivMainCode);
+                Glide.with(WelComeActivity.this).load(codeUrl).asBitmap().override(150,150).into(ivMainCode);
             }
         });
     }
@@ -327,7 +329,12 @@ public class WelComeActivity extends BaseGpioActivity implements FaceView.FaceCa
         Log.e(TAG, "update: 收到签到更新事件" + event.toString());
 
         recordFragment.addRecord(event);
-        Glide.with(this).load(event.getHeadPath()).asBitmap().into(ivHead);
+        Glide.with(this)
+                .load(event.getImageBytes())
+                .asBitmap()
+                .transform(new RoundedCornersTransformation(getActivity(),10,5))
+                .override(100,100)
+                .into(ivHead);
         tvPersonName.setText(event.getName());
 
         ivHead.removeCallbacks(resetRunnable);

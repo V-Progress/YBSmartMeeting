@@ -177,13 +177,20 @@ public class EntryGirdFragment extends BaseFragment {
             }
             SignModel signModel = datas.get(position);
             EntryInfo entryInfo = signModel.getEntryInfo();
-            Glide.with(getActivity()).load(entryInfo.getHeadPath()).asBitmap().skipMemoryCache(true).into(viewHodler.civ);
+            Glide.with(getActivity())
+                    .load(entryInfo.getHeadPath())
+                    .asBitmap()
+                    .override(50,50)
+                    .skipMemoryCache(true)
+                    .into(viewHodler.civ);
 
-            if(signModel.isSigned()){
-                Glide.with(getActivity()).load(R.mipmap.signed).asBitmap().skipMemoryCache(true).into(viewHodler.ivMarker);
-            } else {
-                Glide.with(getActivity()).load(R.mipmap.nosigned).asBitmap().skipMemoryCache(true).into(viewHodler.ivMarker);
-            }
+            Glide.with(getActivity())
+                    .load(signModel.isSigned() ? R.mipmap.signed : R.mipmap.nosigned)
+                    .asBitmap()
+                    .override(50,50)
+                    .skipMemoryCache(true)
+                    .into(viewHodler.ivMarker);
+
             return convertView;
         }
         class ViewHodler {

@@ -223,9 +223,10 @@ public class RecordFragment extends BaseFragment {
 
             //设置图片圆角角度
             Glide.with(getActivity())
-                    .load(recordInfo.getHeadPath())
+                    .load(recordInfo.getImageBytes() != null ? recordInfo.getImageBytes() : recordInfo.getHeadPath())
                     .asBitmap()
                     .transform(new RoundedCornersTransformation(getActivity(),10,5))
+                    .override(100,100)
                     .into(vh.ivHead);
             vh.tvName.setText(recordInfo.getName());
             vh.tvTime.setText(dateFormat.format(recordInfo.getTime()));

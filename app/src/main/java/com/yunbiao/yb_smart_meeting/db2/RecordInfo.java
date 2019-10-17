@@ -3,6 +3,9 @@ package com.yunbiao.yb_smart_meeting.db2;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Transient;
+
+import java.util.Arrays;
 
 @Entity
 public class RecordInfo {
@@ -25,6 +28,9 @@ public class RecordInfo {
     private String name;
 
     private int smilar;
+
+    @Transient
+    private byte[] imageBytes;
 
     @Generated(hash = 2004673918)
     public RecordInfo(Long id, long meetEntryId, long meetId, String headPath,
@@ -56,6 +62,7 @@ public class RecordInfo {
                 ", type=" + type +
                 ", name='" + name + '\'' +
                 ", smilar=" + smilar +
+                ", imageBytes=" + Arrays.toString(imageBytes) +
                 '}';
     }
 
@@ -137,5 +144,13 @@ public class RecordInfo {
 
     public void setIsUpload(boolean isUpload) {
         this.isUpload = isUpload;
+    }
+
+    public byte[] getImageBytes() {
+        return this.imageBytes;
+    }
+
+    public void setImageBytes(byte[] imageBytes) {
+        this.imageBytes = imageBytes;
     }
 }

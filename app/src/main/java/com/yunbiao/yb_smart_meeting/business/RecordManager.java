@@ -129,9 +129,8 @@ public class RecordManager {
         recordInfo.setType(entryInfo.getType());
         int similar = (int) (verifyResult.getVerifyScore() * 100);
         recordInfo.setSmilar(similar);
+        recordInfo.setImageBytes(faceImageBytes);
 
-        File imgFile = saveBitmap(recordInfo.getTime(), faceImageBytes);
-        recordInfo.setHeadPath(imgFile.getPath());
         recordInfo.setUpload(false);
         DaoManager.get().addOrUpdate(recordInfo);
 
@@ -141,6 +140,8 @@ public class RecordManager {
             verifyCallback.onVerifySuccess(recordInfo);
         }
 
+        File imgFile = saveBitmap(recordInfo.getTime(), faceImageBytes);
+        recordInfo.setHeadPath(imgFile.getPath());
         sendRecord(recordInfo);
     }
 
