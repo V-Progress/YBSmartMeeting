@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
+
 public class RecordFragment extends BaseFragment {
     private static final String TAG = "RecordFragment";
     private View rootView;
@@ -219,7 +221,12 @@ public class RecordFragment extends BaseFragment {
 
             RecordInfo recordInfo = signBeanList.get(i);
 
-            Glide.with(getActivity()).load(recordInfo.getHeadPath()).asBitmap().into(vh.ivHead);
+            //设置图片圆角角度
+            Glide.with(getActivity())
+                    .load(recordInfo.getHeadPath())
+                    .asBitmap()
+                    .transform(new RoundedCornersTransformation(getActivity(),10,5))
+                    .into(vh.ivHead);
             vh.tvName.setText(recordInfo.getName());
             vh.tvTime.setText(dateFormat.format(recordInfo.getTime()));
         }

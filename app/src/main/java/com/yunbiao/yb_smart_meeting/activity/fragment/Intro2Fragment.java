@@ -23,6 +23,8 @@ import leifu.viewpagertransfomerlibrary.transformer.CubePageTransformer;
 
 public class Intro2Fragment extends BaseFragment {
     private ViewPager viewPager;
+    private View ivLeft;
+    private View ivRight;
 
     @Override
     protected int setLayout() {
@@ -35,11 +37,37 @@ public class Intro2Fragment extends BaseFragment {
         fragments.add(new MediaFragment());
         fragments.add(new CurrFragment());
         fragments.add(new MeetingListFragment());
-
+        ivLeft = find(R.id.iv_left);
+        ivRight = find(R.id.iv_right);
         viewPager = find(R.id.vp);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(false, new CubePageTransformer(30F));//也可自定义动画范围大小new CubePageTransformer(90f)
         viewPager.setAdapter(new PageAdapter(getChildFragmentManager(),fragments));
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                if(i == 0){
+                    ivLeft.setVisibility(View.GONE);
+                    ivRight.setVisibility(View.VISIBLE);
+                } else if(i == 1){
+                    ivLeft.setVisibility(View.VISIBLE);
+                    ivRight.setVisibility(View.VISIBLE);
+                } else {
+                    ivLeft.setVisibility(View.VISIBLE);
+                    ivRight.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
     }
 
     @Override
