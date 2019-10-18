@@ -50,17 +50,18 @@ public class Constants {
         /***
          * 本地开发环境
          */
-        //主机地址
-//        String DEV_URL = "192.168.1.54";
+        //曾辉
+//        String DEV_URL = "192.168.1.45";
+//        String DEV_RES_PORT = "8082";
+//        String DEV_SUFFIX = "/ybface/";
+
+        //正式
         String DEV_URL = "47.105.80.245";
+        String DEV_RES_PORT = "8080";
+        String DEV_SUFFIX = "/";
+
         //XMPP端口
         String DEV_XMPP_PORT = "5222";
-        //数据端口
-//        String DEV_RES_PORT = "8088";
-        String DEV_RES_PORT = "8080";
-        //项目名
-//        String DEV_SUFFIX = "/ybface/";
-        String DEV_SUFFIX = "/";
     }
 }
 

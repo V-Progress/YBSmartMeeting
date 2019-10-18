@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 
 import com.yunbiao.yb_smart_meeting.R;
@@ -51,16 +52,7 @@ public class Intro2Fragment extends BaseFragment {
 
             @Override
             public void onPageSelected(int i) {
-                if(i == 0){
-                    ivLeft.setVisibility(View.GONE);
-                    ivRight.setVisibility(View.VISIBLE);
-                } else if(i == 1){
-                    ivLeft.setVisibility(View.VISIBLE);
-                    ivRight.setVisibility(View.VISIBLE);
-                } else {
-                    ivLeft.setVisibility(View.VISIBLE);
-                    ivRight.setVisibility(View.GONE);
-                }
+                showMode(i);
             }
 
             @Override
@@ -68,6 +60,40 @@ public class Intro2Fragment extends BaseFragment {
 
             }
         });
+
+        ivLeft.setOnClickListener(onClickListener);
+        ivRight.setOnClickListener(onClickListener);
+        showMode(0);
+    }
+
+    //设置按钮显示模式
+    private void showMode(int currIndex){
+        if(currIndex == 0){
+            ivLeft.setVisibility(View.GONE);
+            ivRight.setVisibility(View.VISIBLE);
+        } else if(currIndex == 2){
+            ivLeft.setVisibility(View.VISIBLE);
+            ivRight.setVisibility(View.GONE);
+        } else {
+            ivLeft.setVisibility(View.VISIBLE);
+            ivRight.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            click(v.getId() == R.id.iv_left);
+        }
+    };
+
+    private void click(boolean isLeft){
+        int currentItem = viewPager.getCurrentItem();
+        if (isLeft) {
+            viewPager.setCurrentItem(currentItem - 1,true);
+        } else {
+            viewPager.setCurrentItem(currentItem + 1,true);
+        }
     }
 
     @Override
