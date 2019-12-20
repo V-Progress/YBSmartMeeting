@@ -6,6 +6,7 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Transient;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Entity
 public class RecordInfo {
@@ -13,7 +14,7 @@ public class RecordInfo {
     @Id
     private Long id;
 
-    private long meetEntryId;
+    private String meetEntryId;
 
     private long meetId;
 
@@ -32,8 +33,9 @@ public class RecordInfo {
     @Transient
     private byte[] imageBytes;
 
-    @Generated(hash = 2004673918)
-    public RecordInfo(Long id, long meetEntryId, long meetId, String headPath,
+
+    @Generated(hash = 827830629)
+    public RecordInfo(Long id, String meetEntryId, long meetId, String headPath,
             boolean isUpload, long time, int type, String name, int smilar) {
         this.id = id;
         this.meetEntryId = meetEntryId;
@@ -49,6 +51,7 @@ public class RecordInfo {
     @Generated(hash = 1863816245)
     public RecordInfo() {
     }
+
 
     @Override
     public String toString() {
@@ -74,11 +77,11 @@ public class RecordInfo {
         this.id = id;
     }
 
-    public long getMeetEntryId() {
+    public String getMeetEntryId() {
         return meetEntryId;
     }
 
-    public void setMeetEntryId(long meetEntryId) {
+    public void setMeetEntryId(String meetEntryId) {
         this.meetEntryId = meetEntryId;
     }
 
@@ -152,5 +155,9 @@ public class RecordInfo {
 
     public void setImageBytes(byte[] imageBytes) {
         this.imageBytes = imageBytes;
+    }
+
+    public int equalsThat(RecordInfo that) {
+        return meetEntryId.equals(that.meetEntryId) ? (that.time < time ? -1 : 1 ):0;
     }
 }

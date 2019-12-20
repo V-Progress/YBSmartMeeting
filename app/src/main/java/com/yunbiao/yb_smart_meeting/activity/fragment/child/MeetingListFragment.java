@@ -1,6 +1,7 @@
 package com.yunbiao.yb_smart_meeting.activity.fragment.child;
 
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
@@ -17,6 +18,7 @@ import com.yunbiao.yb_smart_meeting.activity.fragment.BaseFragment;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
+import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -27,7 +29,16 @@ import java.util.List;
 
 public class MeetingListFragment extends BaseFragment {
 
+    private static final String TAG = "MeetingListFragment";
     private RecyclerView rlvMeetingList;
+
+    public static MeetingListFragment instance(String key, long meetId){
+        MeetingListFragment meetingListFragment = new MeetingListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong(key,meetId);
+        meetingListFragment.setArguments(bundle);
+        return meetingListFragment;
+    }
 
     @Override
     protected int setLayout() {
@@ -42,36 +53,16 @@ public class MeetingListFragment extends BaseFragment {
 
     @Override
     protected void initData() {
-
-    }
-
-    private static final String TAG = "MeetingListFragment";
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void update(MeetingEvent event) {
-        if(event.getState() == MeetingEvent.GET_MEETING_FAILED){
-            return;
-        }
-        Log.e(TAG, "update: " + event.getState());
-        switch (event.getState()) {
-            case MeetingEvent.GET_COMPLETE_SUCESS:
-            case MeetingEvent.GET_NO_MEETING:
-                loadMeeting();
-                break;
-        }
-    }
-
-    public void loadMeeting() {
-        List<MeetInfo> meetInfos = DaoManager.get().queryAll(MeetInfo.class);
-        Log.e(TAG, "loadMeeting: ----- " + (meetInfos != null ? meetInfos.size() : 0));
-        Collections.sort(meetInfos, new Comparator<MeetInfo>() {
+        int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
+        List<MeetInfo> meetInfoList = DaoManager.get().queryMeetInfoByComId(comId);
+        Collections.sort(meetInfoList, new Comparator<MeetInfo>() {
             @Override
             public int compare(MeetInfo o1, MeetInfo o2) {
                 //倒序：左大于右返回正值 //正序：左边大时返回负值
                 return o1.getNum() < o2.getNum() ? -1 : o1.getNum() > o2.getNum() ? 1 : 0;
             }
         });
-        rlvMeetingList.setAdapter(new MeetingAdapter(meetInfos));
+        rlvMeetingList.setAdapter(new MeetingAdapter(meetInfoList));
     }
 
     class MeetingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

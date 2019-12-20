@@ -2,18 +2,20 @@ package com.yunbiao.yb_smart_meeting.db2;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Unique;
 import org.greenrobot.greendao.annotation.Generated;
 
-@Entity
+@Entity(indexes = {@Index(value = "meetId DESC,  meetEntryId DESC", unique = true)})
 public class EntryInfo {
-    @Id
+    @Id(autoincrement = true)
     private Long id;
 
     private long meetId;
 
-    @Unique
-    private long meetEntryId;
+    private long comId;
+
+    private String meetEntryId;
 
     private int sex;
     private String phone;
@@ -26,12 +28,13 @@ public class EntryInfo {
 
     private String headPath;
 
-    @Generated(hash = 1508196360)
-    public EntryInfo(Long id, long meetId, long meetEntryId, int sex, String phone,
-            String tectitle, String comName, String name, String seatNumber,
-            int type, String head, String headPath) {
+    @Generated(hash = 1817627997)
+    public EntryInfo(Long id, long meetId, long comId, String meetEntryId, int sex,
+            String phone, String tectitle, String comName, String name,
+            String seatNumber, int type, String head, String headPath) {
         this.id = id;
         this.meetId = meetId;
+        this.comId = comId;
         this.meetEntryId = meetEntryId;
         this.sex = sex;
         this.phone = phone;
@@ -53,7 +56,8 @@ public class EntryInfo {
         return "EntryInfo{" +
                 "id=" + id +
                 ", meetId=" + meetId +
-                ", meetEntryId=" + meetEntryId +
+                ", comId=" + comId +
+                ", meetEntryId='" + meetEntryId + '\'' +
                 ", sex=" + sex +
                 ", phone='" + phone + '\'' +
                 ", tectitle='" + tectitle + '\'' +
@@ -64,6 +68,22 @@ public class EntryInfo {
                 ", head='" + head + '\'' +
                 ", headPath='" + headPath + '\'' +
                 '}';
+    }
+
+    public long getComId() {
+        return comId;
+    }
+
+    public void setComId(long comId) {
+        this.comId = comId;
+    }
+
+    public String getMeetEntryId() {
+        return meetEntryId;
+    }
+
+    public void setMeetEntryId(String meetEntryId) {
+        this.meetEntryId = meetEntryId;
     }
 
     public String getHeadPath() {
@@ -88,14 +108,6 @@ public class EntryInfo {
 
     public void setMeetId(long meetId) {
         this.meetId = meetId;
-    }
-
-    public long getMeetEntryId() {
-        return meetEntryId;
-    }
-
-    public void setMeetEntryId(long meetEntryId) {
-        this.meetEntryId = meetEntryId;
     }
 
     public int getSex() {

@@ -56,7 +56,6 @@ public class CommonUtils {
         assert wifiManager != null;
         if (!wifiManager.isWifiEnabled()) {//必须先打开，才能获取到MAC地址
             wifiManager.setWifiEnabled(true);
-            wifiManager.setWifiEnabled(false);
         }
         if (null != info) {
             macAddress = info.getMacAddress();

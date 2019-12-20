@@ -14,6 +14,8 @@ public class MeetInfo {
     @Unique
     private long id;
 
+    private long comId;
+
     private String beginTime;
     private String endTime;
     private long meetRoomId;
@@ -24,10 +26,11 @@ public class MeetInfo {
     private String codeUrl;
     private int num;
 
-    @Generated(hash = 1357483309)
-    public MeetInfo(long id, String beginTime, String endTime, long meetRoomId, String meetRoomName, String name,
-            String theme, String userName, String codeUrl, int num) {
+    @Generated(hash = 309079478)
+    public MeetInfo(long id, long comId, String beginTime, String endTime, long meetRoomId, String meetRoomName,
+            String name, String theme, String userName, String codeUrl, int num) {
         this.id = id;
+        this.comId = comId;
         this.beginTime = beginTime;
         this.endTime = endTime;
         this.meetRoomId = meetRoomId;
@@ -47,6 +50,7 @@ public class MeetInfo {
     public String toString() {
         return "MeetInfo{" +
                 "id=" + id +
+                ", comId=" + comId +
                 ", beginTime='" + beginTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", meetRoomId=" + meetRoomId +
@@ -158,5 +162,13 @@ public class MeetInfo {
     @Override
     public int hashCode() {
         return Objects.hash(id, beginTime, endTime, meetRoomId, meetRoomName, name, theme, userName, codeUrl);
+    }
+
+    public long getComId() {
+        return this.comId;
+    }
+
+    public void setComId(long comId) {
+        this.comId = comId;
     }
 }

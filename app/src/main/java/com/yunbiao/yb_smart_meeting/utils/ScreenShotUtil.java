@@ -27,6 +27,8 @@ import android.view.WindowManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.common.NetTool;
 import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +45,8 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import okhttp3.Call;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -218,9 +222,21 @@ public class ScreenShotUtil {
     }
 
     public void sendCutFinish(String sid, String filePath) {
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("sid", sid);
-        NetTool.communication02(ResourceUpdate.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
+        File file = new File(filePath);
+//        NetTool.communication02(ResourceUpdate.SCREEN_UPLOAD_URL, params, filePath, "screenimage");
+        OkHttpUtils.post().url(ResourceUpdate.SCREEN_UPLOAD_URL).params(params).addFile("screenimage",file.getName(),file).build().execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                Log.e(TAG, "onErrorGetMeeting: " + (e == null ? "NULL" : e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                Log.e(TAG, "onResponse: " + response);
+            }
+        });
     }
 
     private MediaProjectionManager projectionManager;

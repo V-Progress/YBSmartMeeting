@@ -25,6 +25,7 @@ public class Constants {
     public static String INFO_PATH = TEMP_PATH + "info/";//公司简介
     public static String ADS_PATH = TEMP_PATH + "ads/";//广告路径
     public static String HEAD_PATH = TEMP_PATH + "photo/";//照片路径
+    public static String FEATURE_PATH = TEMP_PATH + "features/";//照片路径
     public static String RECORD_PATH = TEMP_PATH + "record/";//实时人脸记录缓存
     public static String MEETING_PATH = TEMP_PATH + "meeting/";
 
@@ -38,30 +39,25 @@ public class Constants {
         /***
          * 正式环境
          */
-        //主机地址
-        String PRO_URL = "47.105.80.245";
-        //XMPP端口
-        String PRO_XMPP_PORT = "5222";
-        //数据端口
-        String PRO_RES_PORT = "8080";
-        //项目名（端口为80，项目名不用写）
-        String PRO_SUFFIX = "/";
+//        String PRO_URL = "47.105.80.245";
+//        String PRO_RES_PORT = "8080";
+//        String PRO_XMPP_PORT = "5222";
+//        String PRO_SUFFIX = "/";
 
         /***
-         * 本地开发环境
+         * 张继桃环境
          */
-        //曾辉
-//        String DEV_URL = "192.168.1.45";
-//        String DEV_RES_PORT = "8082";
+//        String DEV_URL = "192.168.1.54";
+//        String DEV_RES_PORT = "8088";
+//        String DEV_XMPP_PORT = "5222";
 //        String DEV_SUFFIX = "/ybface/";
-
-        //正式
+        /***
+         * 正式环境
+         */
         String DEV_URL = "47.105.80.245";
         String DEV_RES_PORT = "8080";
-        String DEV_SUFFIX = "/";
-
-        //XMPP端口
         String DEV_XMPP_PORT = "5222";
+        String DEV_SUFFIX = "/";
     }
 }
 

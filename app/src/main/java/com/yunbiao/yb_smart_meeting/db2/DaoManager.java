@@ -63,6 +63,16 @@ public class DaoManager {
        return  daoSession.insertOrReplace(clazz);
     }
 
+    public void addEntryList(List<EntryInfo> infos){
+        daoSession.getEntryInfoDao().insertOrReplaceInTx(infos);
+    }
+    public void addAdvertList(List<AdvertInfo> infos){
+        daoSession.getAdvertInfoDao().insertOrReplaceInTx(infos);
+    }
+    public void addFlowList(List<FlowInfo> infos){
+        daoSession.getFlowInfoDao().insertOrReplaceInTx(infos);
+    }
+
     public <T>long update(T t){
         if(daoSession == null){
             return FAILURE;
@@ -78,6 +88,114 @@ public class DaoManager {
         return daoSession.loadAll(clazz);
     }
 
+    public long deleteMeetInfos(List<MeetInfo> meetInfos){
+        if(meetInfos == null || meetInfos.size() <= 0){
+            return SUCCESS;
+        }
+        if(daoSession == null){
+            return FAILURE;
+        }
+        daoSession.getMeetInfoDao().deleteInTx(meetInfos);
+        return SUCCESS;
+    }
+
+    public long deleteEntryInfos(List<EntryInfo> entryInfos){
+        if(entryInfos == null || entryInfos.size() <= 0){
+            return SUCCESS;
+        }
+        if(daoSession == null){
+            return FAILURE;
+        }
+        daoSession.getEntryInfoDao().deleteInTx(entryInfos);
+        return SUCCESS;
+    }
+
+    public long deleteAdvertInfos(List<AdvertInfo> advertInfos){
+        if(advertInfos == null || advertInfos.size() <= 0){
+            return SUCCESS;
+        }
+        if(daoSession == null){
+            return FAILURE;
+        }
+        daoSession.getAdvertInfoDao().deleteInTx(advertInfos);
+        return SUCCESS;
+    }
+
+    public long deleteFlowInfos(List<FlowInfo> flowInfos){
+        if(flowInfos == null || flowInfos.size() <= 0){
+            return SUCCESS;
+        }
+        if(daoSession == null){
+            return FAILURE;
+        }
+        daoSession.getFlowInfoDao().deleteInTx(flowInfos);
+        return SUCCESS;
+    }
+
+    public List<EntryInfo> queryEntryInfoByComId(int comId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.ComId.eq(comId)).list();
+    }
+    public List<EntryInfo> queryEntryInfoByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.MeetId.eq(meetId)).list();
+    }
+
+    public List<AdvertInfo> queryAdvertByComdId(int comId){
+        if(daoSession == null){
+            return null;
+        }
+        return daoSession.getAdvertInfoDao().queryBuilder().where(AdvertInfoDao.Properties.ComId.eq(comId)).list();
+    }
+
+    public List<AdvertInfo> queryAdvertByMeetId(long id){
+        if(daoSession == null){
+            return null;
+        }
+        return daoSession.getAdvertInfoDao().queryBuilder().where(AdvertInfoDao.Properties.MeetId.eq(id)).list();
+
+    }
+
+    public List<FlowInfo> queryFlowByComId(int comId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getFlowInfoDao().queryBuilder().where(FlowInfoDao.Properties.ComId.eq(comId)).list();
+    }
+
+    public List<FlowInfo> queryFlowByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getFlowInfoDao().queryBuilder().where(FlowInfoDao.Properties.MeetId.eq(meetId)).list();
+    }
+
+    public List<MeetInfo> queryMeetInfoByComId(long comId) {
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.ComId.eq(comId)).list();
+    }
+
+    public MeetInfo queryMeetInfoByNum(int num) {
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.Num.eq(num)).unique();
+    }
+
+    public MeetInfo queryMeetInfoByMeetId(long meetId){
+        if(daoMaster == null){
+            return null;
+        }
+        return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.Id.eq(meetId)).unique();
+    }
+    /*========================================================*/
+
     public MeetInfo queryByMeetNum(int num){
         if(daoMaster == null){
             return null;
@@ -85,14 +203,14 @@ public class DaoManager {
         return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.Num.eq(num)).unique();
     }
 
-    public List<RecordInfo> queryRecordByMeetIdAndEntryId(long meetId,long meetEntryId){
+    public List<RecordInfo> queryRecordByMeetIdAndEntryId(long meetId,String meetEntryId){
         if(daoMaster == null){
             return null;
         }
         return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.MeetId.eq(meetId),RecordInfoDao.Properties.MeetEntryId.eq(meetEntryId)).list();
     }
 
-    public boolean isSigned(long meetId,long meetEntryId){
+    public boolean isSigned(long meetId,String meetEntryId){
         List<RecordInfo> recordInfos = queryRecordByMeetIdAndEntryId(meetId, meetEntryId);
         return recordInfos != null && recordInfos.size() > 0;
     }
@@ -114,18 +232,25 @@ public class DaoManager {
                 .list();
     }
 
-    public List<EntryInfo> queryEntryInfoByMeetId(long meetId){
-        if(daoMaster == null){
-            return null;
+    public EntryInfo queryEntryByMeetIdAndEntryId(long meetId,String entryId){
+        if(daoSession == null){
+            return  null;
         }
-        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.MeetId.eq(meetId)).list();
+        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.MeetId.eq(meetId),EntryInfoDao.Properties.MeetEntryId.eq(entryId)).unique();
     }
 
-    public List<FlowInfo> queryFlowByMeetId(long meetId){
-        if(daoMaster == null){
-            return null;
+    public List<EntryInfo> queryEntryByComId(int comId) {
+        if(daoSession == null){
+            return  null;
         }
-        return daoSession.getFlowInfoDao().queryBuilder().where(FlowInfoDao.Properties.MeetId.eq(meetId)).list();
+        return daoSession.getEntryInfoDao().queryBuilder().where(EntryInfoDao.Properties.ComId.eq(comId)).list();
+    }
+
+    public List<MeetInfo> queryMeetByComId(int comId){
+        if(daoSession == null){
+            return  null;
+        }
+        return daoSession.getMeetInfoDao().queryBuilder().where(MeetInfoDao.Properties.ComId.eq(comId)).list();
     }
 
     public List<RecordInfo> queryRecordByUpload(boolean isUpload){
@@ -140,14 +265,6 @@ public class DaoManager {
             return null;
         }
         return daoSession.getRecordInfoDao().queryBuilder().where(RecordInfoDao.Properties.Time.eq(time)).unique();
-    }
-
-    public List<AdvertInfo> queryAdvertByMeetId(long id){
-        if(daoSession == null){
-            return null;
-        }
-        return daoSession.getAdvertInfoDao().queryBuilder().where(AdvertInfoDao.Properties.MeetId.eq(id)).list();
-
     }
 
     public List<UserBean> queryUserByFaceId(String faceId){

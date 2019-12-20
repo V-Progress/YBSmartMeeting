@@ -5,11 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.FaceEngine;
+import com.faceview.Constants;
+import com.faceview.FaceManager;
 import com.google.gson.Gson;
 import com.yunbiao.yb_smart_meeting.Access.WelComeSmallActivity;
 import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
+import com.yunbiao.yb_smart_meeting.afinel.PathManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.bean.CompanyBean;
 import com.yunbiao.yb_smart_meeting.business.DialogUtil;
@@ -31,6 +37,7 @@ import okhttp3.Request;
 public class InitActivity extends AppCompatActivity {
     private static final String TAG = "InitActivity";
     private String deviceNumber;
+    private String bindCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +46,13 @@ public class InitActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
 
         deviceNumber = SpUtils.getStr(SpUtils.DEVICE_NUMBER);
+        bindCode = SpUtils.getStr(SpUtils.BINDCODE);
 
-        DialogUtil.showProgress(this,"正在登陆服务器...");
+        DialogUtil.showProgress(this, "正在登陆服务器...");
         //开启Xmpp
         APP.startXMPP();
 
-        if(TextUtils.isEmpty(deviceNumber)){
+        if (TextUtils.isEmpty(deviceNumber)) {
             return;
         }
         loadCompany();
@@ -58,8 +66,9 @@ public class InitActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void update(SysInfoUpdateEvent sysInfoUpdateEvent) {
-        if(TextUtils.isEmpty(deviceNumber)){
+        if (TextUtils.isEmpty(deviceNumber)) {
             deviceNumber = SpUtils.getStr(SpUtils.DEVICE_NUMBER);
+            bindCode = SpUtils.getStr(SpUtils.BINDCODE);
             loadCompany();
         }
     }
@@ -85,7 +94,7 @@ public class InitActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Log.e(TAG, "onError: " + (e == null ? "NULL" : e.getMessage()));
+                        Log.e(TAG, "onErrorGetMeeting: " + (e == null ? "NULL" : e.getMessage()));
                         result = -1;
                     }
 
@@ -120,33 +129,45 @@ public class InitActivity extends AppCompatActivity {
 
                         if (result == 1) {
                             Log.e(TAG, "onAfter: 加载成功，跳转");
-                            jump();
+                            activeFaceSDK();
                         } else if (result == 4) {
                             Log.e(TAG, "onAfter: 未绑定公司，等待重试");
-                            DialogUtil.showTimerAlertDialog(InitActivity.this, "提示" + deviceNumber, "该设备未绑定公司，请先绑定", 60, retryRunnable);
+                            DialogUtil.showTimerAlertDialog(InitActivity.this, "编号：" + deviceNumber + "，绑定码：" + bindCode, "该设备未绑定公司，请先绑定", 60, retryRunnable);
                         } else {
                             int anInt = SpUtils.getInt(SpUtils.COMPANY_ID);
                             if (anInt > 0) {
                                 Log.e(TAG, "onAfter: 有缓存，跳转");
-                                jump();
+                                activeFaceSDK();
                             } else {
-                                DialogUtil.showTimerAlertDialog(InitActivity.this, "提示" + deviceNumber, "请求失败，请检查网络", 30, retryRunnable);
+                                DialogUtil.showTimerAlertDialog(InitActivity.this, "编号：" + deviceNumber + "，绑定码：" + bindCode, "请求失败，请检查网络", 30, retryRunnable);
                             }
                         }
                     }
-
                 });
     }
 
-    private void jump(){
+    private void activeFaceSDK() {
+        int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
+        PathManager.init(comId);
+
+        int active = FaceEngine.active(APP.getContext(), Constants.APP_ID, Constants.SDK_KEY);
+        if (active == ErrorInfo.MOK || active == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
+            Log.e(TAG, "激活成功或已激活");
+            jump();
+        } else {
+            Toast.makeText(InitActivity.this, "激活失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void jump() {
         Intent intent = new Intent();
-        if(Config.deviceType == Config.DEVICE_MEETING_ACCESS){
+        if (Config.deviceType == Config.DEVICE_MEETING_ACCESS) {
             intent.setClass(InitActivity.this, WelComeSmallActivity.class);
         } else {
             intent.setClass(InitActivity.this, WelComeActivity.class);
         }
         startActivity(intent);
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         finish();
     }
 

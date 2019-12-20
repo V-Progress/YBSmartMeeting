@@ -114,6 +114,15 @@ public abstract class BaseActivity extends FragmentActivity {
         mFragmentManager.beginTransaction().add(id,fragment).commit();
     }
 
+    protected void removeFragment(Fragment fragment){
+        if(mFragmentManager == null){
+            return;
+        }
+        if(fragment != null && fragment.isAdded()){
+            mFragmentManager.beginTransaction().remove(fragment).commit();
+        }
+    }
+
     public void onBack(View view){
         finish();
     }

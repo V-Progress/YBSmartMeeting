@@ -173,7 +173,7 @@ public class AdsSwitcher extends FrameLayout implements MediaPlayer.OnCompletion
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.e(TAG, "onError: 111111111111111");
+        Log.e(TAG, "onErrorGetMeeting: 111111111111111");
         justStartAutoPlay();//播放失败后立即播放下一个
         return true;
     }

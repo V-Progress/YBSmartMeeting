@@ -91,7 +91,7 @@ public class PowerOffTool {
 
             @Override
             public void onError(Throwable ex) {
-                Log.e(TAG, "onError: "+ex.getMessage());
+                Log.e(TAG, "onErrorGetMeeting: "+ex.getMessage());
                 ex.printStackTrace();
             }
 

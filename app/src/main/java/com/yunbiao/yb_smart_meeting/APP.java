@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.android.xhapimanager.XHApiManager;
 import com.bumptech.glide.Glide;
+import com.liulishuo.filedownloader.FileDownloader;
+import com.liulishuo.filedownloader.connection.FileDownloadUrlConnection;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
 import com.yunbiao.yb_smart_meeting.afinel.Constants;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
@@ -46,21 +48,10 @@ public class APP extends Application {
         APP.activity = activity;
     }
 
-    public static void initCompanyId() {
-        companyId = SpUtils.getInt(SpUtils.COMPANY_ID);
-        Constants.DATA_PATH = Constants.CACHE_PATH + companyId + "/data/";
-        Constants.ADS_PATH = Constants.CACHE_PATH + companyId + "/ads/";
-        Constants.HEAD_PATH = Constants.CACHE_PATH + companyId + "/img/";
-        Constants.RECORD_PATH = Constants.CACHE_PATH + companyId + "/rcd/";
-        Constants.MEETING_PATH = Constants.CACHE_PATH + companyId + "/meet/";
-        Constants.INFO_PATH = Constants.CACHE_PATH + companyId + "/info/";
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
-//        initCompanyId();
 
         initGpio();
 
@@ -71,6 +62,15 @@ public class APP extends Application {
 //        initBugly();
 //
 //        initUM();
+
+        FileDownloader.setupOnApplicationOnCreate(this)
+                .connectionCreator(new FileDownloadUrlConnection
+                        .Creator(new FileDownloadUrlConnection
+                        .Configuration()
+                        .connectTimeout(30000)
+                        .readTimeout(30000)
+                ))
+                .commit();
 
         initHttp();
     }
@@ -85,7 +85,7 @@ public class APP extends Application {
     private static final String TAG = "APP";
 
     private void initGpio() {
-        smdt = SmdtManager.create(this);
+        /*smdt = SmdtManager.create(this);
         //设置gpio为输出
         if (smdt != null) {
             for (int i = 0; i < dir_set_io.length; i++) {
@@ -97,7 +97,7 @@ public class APP extends Application {
                 }
             }
             return;
-        }
+        }*/
 
 //        try{
 //            xhApiManager = new XHApiManager();

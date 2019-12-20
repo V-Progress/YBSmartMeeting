@@ -3,13 +3,16 @@ package com.yunbiao.yb_smart_meeting.db2;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Index;
 
-@Entity
-public class AdvertInfo{
-    @Id
-    private long id;
+@Entity(indexes = {@Index(value = "meetId DESC,  advertId DESC", unique = true)})
+public class AdvertInfo {
+    @Id(autoincrement = true)
+    private Long id;
 
     private long meetId;
+
+    private long comId;
 
     private int type;
     private String url;
@@ -24,11 +27,13 @@ public class AdvertInfo{
 
     private String shareUrl;
 
-    @Generated(hash = 1237662108)
-    public AdvertInfo(long id, long meetId, int type, String url, int advertId,
-            String path, long readNum, long goodNum, int time, String shareUrl) {
+    @Generated(hash = 1414240548)
+    public AdvertInfo(Long id, long meetId, long comId, int type, String url,
+            int advertId, String path, long readNum, long goodNum, int time,
+            String shareUrl) {
         this.id = id;
         this.meetId = meetId;
+        this.comId = comId;
         this.type = type;
         this.url = url;
         this.advertId = advertId;
@@ -48,6 +53,7 @@ public class AdvertInfo{
         return "AdvertInfo{" +
                 "id=" + id +
                 ", meetId=" + meetId +
+                ", comId=" + comId +
                 ", type=" + type +
                 ", url='" + url + '\'' +
                 ", advertId=" + advertId +
@@ -57,6 +63,14 @@ public class AdvertInfo{
                 ", time=" + time +
                 ", shareUrl='" + shareUrl + '\'' +
                 '}';
+    }
+
+    public long getComId() {
+        return comId;
+    }
+
+    public void setComId(long comId) {
+        this.comId = comId;
     }
 
     public String getShareUrl() {
@@ -91,12 +105,8 @@ public class AdvertInfo{
         this.goodNum = goodNum;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public long getMeetId() {
@@ -137,5 +147,9 @@ public class AdvertInfo{
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

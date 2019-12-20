@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:layout_height="wrap_content"
-    tools:context=".activity.fragment.child.child.EntryGirdFragment">
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:background="#4F000000"

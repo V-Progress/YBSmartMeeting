@@ -67,7 +67,25 @@ public abstract class BaseFragment extends Fragment {
         });
     }
 
+    protected void hideTips(){
+        if(tvTips == null){
+            return;
+        }
+        if(!tvTips.isShown()){
+            return;
+        }
+        tvTips.post(new Runnable() {
+            @Override
+            public void run() {
+                tvTips.setVisibility(View.GONE);
+            }
+        });
+    }
+
     protected void hideLoading(){
+        if(avlLoading == null){
+            return;
+        }
         avlLoading.post(new Runnable() {
             @Override
             public void run() {

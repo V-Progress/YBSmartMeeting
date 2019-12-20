@@ -25,9 +25,6 @@ public class ResourceUpdate {
     public static String SIGNLOG = WEB_BASE_URL + "api/facewitness/check.html";//创建签到信息接口
     public static String SIGNARRAY = WEB_BASE_URL + "api/facewitness/checkByarray.html";//定时发送签到列表
     public static String GETAD = WEB_BASE_URL + "api/advert/getadvertSR.html";//获取广告
-    public static String GET_VISITOR = WEB_BASE_URL + "api/visitor/getAll.html";//获取访客
-    public static String VISITOR_RECORD = WEB_BASE_URL + "api/visitor/signUpload.html";//获取访客
-    public static String GET_AIRINFO = "";
     public static String GET_INTRODUCE = WEB_BASE_URL + "api/propa/getAll.html";
     public static String SEND_RECORD = WEB_BASE_URL + "api/meetWitLog/check.html";
     public static String CLICK_THUMBS = WEB_BASE_URL + "api/meet/goodAdvert.html";

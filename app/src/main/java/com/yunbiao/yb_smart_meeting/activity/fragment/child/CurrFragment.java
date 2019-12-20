@@ -1,22 +1,32 @@
 package com.yunbiao.yb_smart_meeting.activity.fragment.child;
 
-import android.graphics.Color;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.yunbiao.yb_smart_meeting.R;
-import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.fragment.BaseFragment;
-import com.yunbiao.yb_smart_meeting.activity.fragment.child.child.EntryGirdFragment;
-import com.yunbiao.yb_smart_meeting.activity.fragment.child.child.FlowFragment;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
 import com.yunbiao.yb_smart_meeting.db2.FlowInfo;
 import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
+import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
+import com.yunbiao.yb_smart_meeting.views.NoScrollGridView;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class CurrFragment extends BaseFragment {
     private static final String TAG = "CurrFragment";
@@ -24,11 +34,22 @@ public class CurrFragment extends BaseFragment {
     private TextView tvCurrTime;
     private TextView tvCurrState;
 
-    private EntryGirdFragment insideFragment;
-    private EntryGirdFragment outsideFragment;
-    private EntryGirdFragment guestFragment;
-    private FlowFragment flowFragment;
     private View llMeetingInfo;
+    private EntryAdapter entryAdapter;
+    private List<SignModel> signModels = new ArrayList<>();
+    private List<FlowInfo> flowInfos = new ArrayList<>();
+    private NoScrollGridView entryGridView;
+    private NoScrollGridView flowGridView;
+    private FlowAdapter flowAdapter;
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    public static CurrFragment instance(String key, long meetId) {
+        CurrFragment currFragment = new CurrFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong(key, meetId);
+        currFragment.setArguments(bundle);
+        return currFragment;
+    }
 
     @Override
     protected int setLayout() {
@@ -41,107 +62,103 @@ public class CurrFragment extends BaseFragment {
         tvCurrTime = find(R.id.tv_curr_meeting_time);
         tvCurrState = find(R.id.tv_curr_meeting_state);
         llMeetingInfo = find(R.id.ll_meeting_info);
+        entryGridView = find(R.id.grid_view);
+        flowGridView = find(R.id.grid_view_flow);
+
+        entryAdapter = new EntryAdapter(getActivity(), signModels);
+        entryGridView.setAdapter(entryAdapter);
+
+        flowAdapter = new FlowAdapter(flowInfos);
+        flowGridView.setAdapter(flowAdapter);
     }
 
     @Override
     protected void initData() {
-        showLoading();
+//        long meetId = getArguments().getLong("meetId");
+        MeetInfo meetInfo = DaoManager.get().queryMeetInfoByNum(1);
+        long meetId = meetInfo.getId();
+        tvCurrName.setText(meetInfo.getName());
+        tvCurrTime.setText(meetInfo.getBeginTime() + " ~ " + meetInfo.getEndTime());
+        tvCurrState.setText(meetInfo.getUserName());
+
+        setEntryInfo(meetId);
+        setFlowInfo(meetId);
     }
 
-    @Override
-    public void update(MeetingEvent event) {
-        removeAllChild();
-        MeetInfo meetInfo = event.getMeetInfo();
-        String name = "暂无会议";
-        String time = "";
-        String state = "";
-        int stateColor = 0;
-        switch (event.getState()) {
-            case MeetingEvent.LOAD_PRELOAD:
-                state = "即将开始";
-                name = meetInfo.getName();
-                time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
-                stateColor = Color.RED;
-                loadMeetingInfo(meetInfo);
-                break;
-            case MeetingEvent.LOAD_BEGAN:
-                state = "正在进行";
-                name = meetInfo.getName();
-                time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
-                stateColor = Color.GREEN;
-                loadMeetingInfo(meetInfo);
-                break;
-            case MeetingEvent.LOAD_ENDED:
-                state = "已结束";
-                name = meetInfo.getName();
-                time = meetInfo.getBeginTime() + "   ~   " + meetInfo.getEndTime();
-                stateColor = Color.GRAY;
-                break;
-            case MeetingEvent.GET_NO_MEETING:
-                showTips("暂无会议");
-                break;
-        }
-
-        if (stateColor != 0) {
-            tvCurrState.setTextColor(stateColor);
-        }
-        tvCurrState.setText(state);
-        tvCurrName.setText(name);
-        tvCurrTime.setText(time);
+    private void setFlowInfo(final long meetId) {
+        List<FlowInfo> flowInfoList = DaoManager.get().queryFlowByMeetId(meetId);
+        Collections.sort(flowInfoList, new Comparator<FlowInfo>() {
+            @Override
+            public int compare(FlowInfo o1, FlowInfo o2) {
+                try {
+                    Date o1Begin = dateFormat.parse(o1.getBegin());
+                    Date o2Begin = dateFormat.parse(o2.getBegin());
+                    return o1Begin.before(o2Begin) ? -1 : 1;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        });
+        flowInfos.clear();
+        flowInfos.addAll(flowInfoList);
+        flowAdapter.notifyDataSetChanged();
     }
 
-    private void loadMeetingInfo(MeetInfo meetInfo) {
-        if (meetInfo == null) {
-            showTips("获取会议失败");
-            return;
-        }
+    private void setEntryInfo(final long meetId) {
+        signModels.clear();
+        entryAdapter.notifyDataSetChanged();
 
-        d("加载参会人员");
-        llMeetingInfo.setVisibility(View.VISIBLE);
-        long id = meetInfo.getId();
-        addFragment(id, 3, "参会嘉宾");
-        addFragment(id, 1, "参会员工");
-        addFragment(id, 2, "参会访客");
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetId);
+                for (EntryInfo entryInfo : entryInfos) {
+                    SignModel signModel = new SignModel();
+                    boolean signed = DaoManager.get().isSigned(entryInfo.getMeetId(), entryInfo.getMeetEntryId());
 
-        List<FlowInfo> flowInfos = DaoManager.get().queryFlowByMeetId(id);
-        if (flowInfos != null && flowInfos.size() > 0) {
-            flowFragment = FlowFragment.newInstance(id);
-            getChildFragmentManager().beginTransaction().add(R.id.fl_flow_container, flowFragment).commitAllowingStateLoss();
-        }
+                    Log.e(TAG, "initData: ----- " + entryInfo.getMeetEntryId() + " --- " + entryInfo.getName() + " ---签到：" + signed);
 
-        hideLoadingAndTips();
+                    signModel.setEntryInfo(entryInfo);
+                    signModel.setSigned(signed);
+                    signModels.add(signModel);
+                }
+
+                entryGridView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        entryAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
     }
 
-
-    private void removeFragment(Fragment fragment) {
-        if (fragment != null && fragment.isAdded()) {
-            getChildFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void update(RecordInfo recordInfo) {
+        if (recordInfo != null) {
+            String meetEntryId = recordInfo.getMeetEntryId();
+            boolean isUpdate = false;
+            if (signModels != null) {
+                for (SignModel signModel : signModels) {
+                    EntryInfo entryInfo = signModel.getEntryInfo();
+                    if (TextUtils.equals(entryInfo.getMeetEntryId(),meetEntryId)) {
+                        boolean signed = DaoManager.get().isSigned(entryInfo.getMeetId(), entryInfo.getMeetEntryId());
+                        if(signed && signModel.isSigned()){
+                            break;
+                        }
+                        signModel.setSigned(signed);
+                        isUpdate = true;
+                    }
+                }
+            }
+            if(isUpdate){
+                if (entryAdapter != null) {
+                    entryAdapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 
-    private void addFragment(long meetId, int type, String title) {
-        List<EntryInfo> entryInfos = DaoManager.get().queryEntryByMeetIdAndType(meetId, type);
-        if (entryInfos == null || entryInfos.size() <= 0) return;
-        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        if(type == 1){
-            insideFragment = EntryGirdFragment.newInstance(meetId,type,title);
-            fragmentTransaction.add(R.id.fl_inside_container, insideFragment);
-        } else if(type == 2){
-            outsideFragment = EntryGirdFragment.newInstance(meetId,type,title);
-            fragmentTransaction.add(R.id.fl_outside_container, outsideFragment);
-        } else if(type == 3){
-            guestFragment = EntryGirdFragment.newInstance(meetId,type,title);
-            fragmentTransaction.add(R.id.fl_guest_container, guestFragment);
-        }
-        fragmentTransaction.commitAllowingStateLoss();
-    }
-
-    private void removeAllChild() {
-        llMeetingInfo.setVisibility(View.GONE);
-        removeFragment(insideFragment);
-        removeFragment(outsideFragment);
-        removeFragment(guestFragment);
-        removeFragment(flowFragment);
-    }
 
 }

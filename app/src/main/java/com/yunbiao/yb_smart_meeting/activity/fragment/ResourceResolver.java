@@ -64,7 +64,7 @@ public class ResourceResolver{
 
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        d("onError---" + (e == null ? "NULL" : e.getMessage()));
+                        d("onErrorGetMeeting---" + (e == null ? "NULL" : e.getMessage()));
                     }
 
                     @Override

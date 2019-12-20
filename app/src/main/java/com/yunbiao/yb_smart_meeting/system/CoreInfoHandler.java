@@ -194,7 +194,7 @@ public class CoreInfoHandler {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Log.e(TAG, "onError: " + (e == null ? "NULL" : e.getMessage()));
+                        Log.e(TAG, "onErrorGetMeeting: " + (e == null ? "NULL" : e.getMessage()));
                     }
                     @Override
                     public void onResponse(String response, int id) {

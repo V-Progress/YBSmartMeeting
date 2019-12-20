@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.faceview.CompareResult;
 import com.jdjr.risk.face.local.user.FaceUser;
 import com.jdjr.risk.face.local.verify.VerifyResult;
 import com.yunbiao.yb_smart_meeting.APP;
@@ -14,7 +15,6 @@ import com.yunbiao.yb_smart_meeting.afinel.Constants;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
-import com.yunbiao.yb_smart_meeting.db2.MeetInfo;
 import com.yunbiao.yb_smart_meeting.db2.RecordInfo;
 import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,15 +97,40 @@ public class RecordManager {
         void onVerifySuccess(RecordInfo recordInfo);
     }
 
-    public void checkPassage(VerifyResult verifyResult, VerifyCallback verifyCallback) {
+    public RecordInfo checkPassage(final CompareResult compareResult){
+        String userId = compareResult.getUserName();
+
+        EntryInfo entryInfo = DaoManager.get().queryEntryByMeetIdAndEntryId(mCurrMeetId,userId);
+        if(entryInfo == null){
+            Log.e(TAG, "查无此人");
+            return null;
+        }
+
+        //生成签到时间
+        RecordInfo recordInfo = new RecordInfo();
+        recordInfo.setTime(System.currentTimeMillis());
+        recordInfo.setMeetId(entryInfo.getMeetId());
+        recordInfo.setMeetEntryId(entryInfo.getMeetEntryId());
+        recordInfo.setName(entryInfo.getName());
+        recordInfo.setType(entryInfo.getType());
+        recordInfo.setSmilar((int) (compareResult.getSimilar() * 100));
+        recordInfo.setUpload(false);
+        recordInfo.setHeadPath(entryInfo.getHeadPath());
+
+        DaoManager.get().addOrUpdate(recordInfo);
+
+        sendRecord(recordInfo);
+
+        return recordInfo;
+    }
+
+    /*public void checkPassage(final VerifyResult verifyResult, final VerifyCallback verifyCallback) {
         FaceUser user = verifyResult.getUser();
         if (user == null || TextUtils.isEmpty(user.getUserId())) {
             return;
         }
 
-        byte[] faceImageBytes = verifyResult.getFaceImageBytes();
-        String userId = user.getUserId();
-        long id = Long.parseLong(userId);
+        final String userId = user.getUserId();
 
         //生成签到时间
         final long currTime = System.currentTimeMillis();
@@ -114,39 +138,45 @@ public class RecordManager {
         recordInfo.setTime(currTime);
 
         if (!canPass(recordInfo)) {
+            Log.e(TAG, "不可通行");
+            return;
+        }
+        if(mCurrMeetId == -1){
+            Log.e(TAG, "当前没有正在进行的会议" );
+            return;
+        }
+        Log.e(TAG, "查询的Id：" + userId);
+
+        EntryInfo entryInfo = DaoManager.get().queryEntryByMeetIdAndEntryId(mCurrMeetId,userId);
+        if(entryInfo == null){
+            Log.e(TAG, "查无此人");
             return;
         }
 
-        if (!currMeetIdList.containsKey(id)) {
-            d("查无此人");
-            return;
-        }
-
-        EntryInfo entryInfo = currMeetIdList.get(id);
+        Log.e(TAG, "checkPassage: ----  可以通过");
         recordInfo.setMeetId(entryInfo.getMeetId());
         recordInfo.setMeetEntryId(entryInfo.getMeetEntryId());
         recordInfo.setName(entryInfo.getName());
         recordInfo.setType(entryInfo.getType());
         int similar = (int) (verifyResult.getVerifyScore() * 100);
         recordInfo.setSmilar(similar);
-        recordInfo.setImageBytes(faceImageBytes);
-
+//        recordInfo.setImageBytes(verifyResult.getFaceImageBytes());
         recordInfo.setUpload(false);
-        DaoManager.get().addOrUpdate(recordInfo);
 
-        Log.e(TAG, "checkPassage: ----  可以通过");
-        EventBus.getDefault().post(recordInfo);
+        File imgFile = saveBitmap(recordInfo.getMeetEntryId(),recordInfo.getTime(), verifyResult.getFaceImageBytes());
+        recordInfo.setHeadPath(imgFile.getPath());
+
         if (verifyCallback != null) {
             verifyCallback.onVerifySuccess(recordInfo);
         }
 
-        File imgFile = saveBitmap(recordInfo.getTime(), faceImageBytes);
-        recordInfo.setHeadPath(imgFile.getPath());
+        EventBus.getDefault().post(recordInfo);
+        DaoManager.get().addOrUpdate(recordInfo);
+
         sendRecord(recordInfo);
-    }
+    }*/
 
     private void sendRecord(final RecordInfo recordInfo) {
-        final RecordInfo currRecordInfo = DaoManager.get().queryRecordByTime(recordInfo.getTime());
         Map<String, String> params = new HashMap<>();
         params.put("comId", SpUtils.getInt(SpUtils.COMPANY_ID) + "");
         params.put("meetId", recordInfo.getMeetId() + "");
@@ -156,7 +186,11 @@ public class RecordManager {
         params.put("isPass", "0");
         params.put("similar", recordInfo.getSmilar() + "");
 
+        Log.e(TAG, "地址: " + ResourceUpdate.SEND_RECORD);
+        Log.e(TAG, "参数: " + params.toString());
+
         File file = new File(recordInfo.getHeadPath());
+        Log.e(TAG, "文件: " + file.getPath() + " --- " + file.exists());
 
         OkHttpUtils.post()
                 .url(ResourceUpdate.SEND_RECORD)
@@ -166,27 +200,29 @@ public class RecordManager {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        currRecordInfo.setUpload(false);
+                        Log.e(TAG, "onErrorGetMeeting: " + (e == null ? "NULL" : e.getMessage()));
+                        recordInfo.setUpload(false);
                     }
 
                     @Override
                     public void onResponse(String response, int id) {
-                        currRecordInfo.setUpload(true);
+                        Log.e(TAG, "onResponse: " + response);
+                        recordInfo.setUpload(true);
                     }
 
                     @Override
                     public void onAfter(int id) {
-                        long add = DaoManager.get().addOrUpdate(currRecordInfo);
+                        long add = DaoManager.get().addOrUpdate(recordInfo);
                         Log.e(TAG, "onResponse: 修改记录：" + add);
                     }
                 });
     }
 
     private long verifyOffsetTime = 5000;//验证间隔时间
-    private Map<Long, Long> passageMap = new HashMap<>();
+    private Map<String, Long> passageMap = new HashMap<>();
 
     private boolean canPass(RecordInfo recordInfo) {
-        long entryId = recordInfo.getMeetEntryId();
+        String entryId = recordInfo.getMeetEntryId();
         if (!passageMap.containsKey(entryId)) {
             passageMap.put(entryId, recordInfo.getTime());
             return true;
@@ -206,7 +242,7 @@ public class RecordManager {
      *
      * @return
      */
-    public File saveBitmap(long time, byte[] mBitmapByteArry) {
+    public File saveBitmap(String id,long time, byte[] mBitmapByteArry) {
         long start = System.currentTimeMillis();
         File filePic;
         try {
@@ -218,7 +254,7 @@ public class RecordManager {
             String today = sdf.format(time);
             sdf = new SimpleDateFormat("yyyyMMddHHmmss");
             String sdfTime = sdf.format(time);
-            filePic = new File(Constants.RECORD_PATH + "/" + today + "/" + sdfTime + ".jpg");
+            filePic = new File(Constants.RECORD_PATH + "/" + today + "/" + id + "_"+ sdfTime + ".jpg");
             if (!filePic.exists()) {
                 filePic.getParentFile().mkdirs();
                 filePic.createNewFile();
@@ -236,14 +272,11 @@ public class RecordManager {
         return filePic;
     }
 
-    private Map<Long, EntryInfo> currMeetIdList = new HashMap();
+    private long mCurrMeetId = -1;
+
 
     public void setCurrMeet(long meetId) {
-        currMeetIdList.clear();
-        List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetId);
-        for (EntryInfo entryInfo : entryInfos) {
-            currMeetIdList.put(entryInfo.getId(), entryInfo);
-        }
+        mCurrMeetId = meetId;
     }
 
     public void clearAllRecord(){

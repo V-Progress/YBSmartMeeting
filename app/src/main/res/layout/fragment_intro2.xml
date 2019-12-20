@@ -29,4 +29,5 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content" />
 
+    <include layout="@layout/layout_tips_f"/>
 </FrameLayout>

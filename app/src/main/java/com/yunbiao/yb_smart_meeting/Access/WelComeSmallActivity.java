@@ -24,10 +24,10 @@ import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.Event.MeetingEvent;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseGpioActivity;
+import com.yunbiao.yb_smart_meeting.business.DataLoader;
 import com.yunbiao.yb_smart_meeting.business.DialogUtil;
 import com.yunbiao.yb_smart_meeting.business.Downloader;
 import com.yunbiao.yb_smart_meeting.business.HardwareUtil;
-import com.yunbiao.yb_smart_meeting.business.MeetingLoader;
 import com.yunbiao.yb_smart_meeting.business.RecordManager;
 import com.yunbiao.yb_smart_meeting.business.ResourceCleanManager;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
@@ -101,7 +101,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
             //自动清理服务
             ResourceCleanManager.instance().startAutoCleanService();
 
-            MeetingLoader.i().startAutoGetMeeting(loadListener);
+//            DataLoader.i().startAutoGetMeeting(loadListener);
 
             HardwareUtil.startLightDetection();
         }
@@ -125,7 +125,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
                 return;
             }
 
-            RecordManager.get().checkPassage(verifyResult,verifyCallback);
+//            RecordManager.get().checkPassage(verifyResult,verifyCallback);
         }
     };
 
@@ -145,76 +145,76 @@ public class WelComeSmallActivity extends BaseGpioActivity {
         }
     };
 
-    private MeetingLoader.LoadListener loadListener = new MeetingLoader.LoadListener() {
-        @Override
-        public void onStart() {
-            Log.e(TAG, "onStart: 1111111111111");
-            DialogUtil.showProgress(WelComeSmallActivity.this, "正在加载会议信息...");
-        }
-
-        @Override
-        public void onError() {
-            Log.e(TAG, "onError: 222222222222222222");
-            setMeetingName("获取会议失败");
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_MEETING_FAILED));
-        }
-
-        @Override
-        public void onSuccess() {
-            Log.e(TAG, "onSuccess: 33333333333333333" );
-            DialogUtil.showProgress(WelComeSmallActivity.this, "正在加载当前会议...");
-            setMeetingName("");
-
-            //加载当前会议
-            MeetingLoader.i().loadCurrentMeeting(loadListener);
-
-            //初始化签到记录
-            RecordManager.get();
-        }
-
-        @Override
-        public void noMeeting() {
-            setMeetingName("暂无会议");
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_NO_MEETING));
-            RecordManager.get().clearAllRecord();
-        }
-
-        @Override
-        public void onFinish() {
-            DialogUtil.dismissProgress(WelComeSmallActivity.this);
-        }
-
-        @Override
-        public void onPreload(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_PRELOAD,currentMeetInfo));
-            loadUser(currentMeetInfo);
-        }
-
-        @Override
-        public void onBegan(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_BEGAN,currentMeetInfo));
-            loadUser(currentMeetInfo);
-        }
-
-        @Override
-        public void onEnded(MeetInfo currentMeetInfo) {
-            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_ENDED,currentMeetInfo));
-
-            DaoManager.get().deleteAllByMeetId(currentMeetInfo.getId());
-        }
-
-        @Override
-        public void onNextMeet(MeetInfo nextMeetInfo) {
-            String s = tvMeeting.getText().toString();
-            String next = "下个会议：" +
-                    (nextMeetInfo == null ? "无"
-                    : nextMeetInfo.getName()
-                    + "\n会议主讲：" + nextMeetInfo.getUserName()
-                    + "\n开始时间：" + nextMeetInfo.getBeginTime()
-                    + "\n结束时间：" + nextMeetInfo.getEndTime());
-            setMeetingName(s + "\n\n" + next);
-        }
-    };
+//    private DataLoader.LoadListener loadListener = new DataLoader.LoadListener() {
+//        @Override
+//        public void onStartGetMeeting() {
+//            Log.e(TAG, "onStartGetMeeting: 1111111111111");
+//            DialogUtil.showProgress(WelComeSmallActivity.this, "正在加载会议信息...");
+//        }
+//
+//        @Override
+//        public void onErrorGetMeeting() {
+//            Log.e(TAG, "onErrorGetMeeting: 222222222222222222");
+//            setMeetingName("获取会议失败");
+//            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_MEETING_FAILED));
+//        }
+//
+//        @Override
+//        public void onSuccess() {
+//            Log.e(TAG, "onSuccess: 33333333333333333" );
+//            DialogUtil.showProgress(WelComeSmallActivity.this, "正在加载当前会议...");
+//            setMeetingName("");
+//
+//            //加载当前会议
+//            DataLoader.i().loadCurrentMeeting(loadListener);
+//
+//            //初始化签到记录
+//            RecordManager.get();
+//        }
+//
+//        @Override
+//        public void noMeeting() {
+//            setMeetingName("暂无会议");
+//            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.GET_NO_MEETING));
+//            RecordManager.get().clearAllRecord();
+//        }
+//
+//        @Override
+//        public void onFinish() {
+//            DialogUtil.dismissProgress(WelComeSmallActivity.this);
+//        }
+//
+//        @Override
+//        public void onPreload(MeetInfo currentMeetInfo) {
+//            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_PRELOAD,currentMeetInfo));
+//            loadUser(currentMeetInfo);
+//        }
+//
+//        @Override
+//        public void onBegan(MeetInfo currentMeetInfo) {
+//            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_BEGAN,currentMeetInfo));
+//            loadUser(currentMeetInfo);
+//        }
+//
+//        @Override
+//        public void onEnded(MeetInfo currentMeetInfo) {
+//            EventBus.getDefault().post(new MeetingEvent(MeetingEvent.LOAD_ENDED,currentMeetInfo));
+//
+//            DaoManager.get().deleteAllByMeetId(currentMeetInfo.getId());
+//        }
+//
+//        @Override
+//        public void onNextMeet(MeetInfo nextMeetInfo) {
+//            String s = tvMeeting.getText().toString();
+//            String next = "下个会议：" +
+//                    (nextMeetInfo == null ? "无"
+//                    : nextMeetInfo.getName()
+//                    + "\n会议主讲：" + nextMeetInfo.getUserName()
+//                    + "\n开始时间：" + nextMeetInfo.getBeginTime()
+//                    + "\n结束时间：" + nextMeetInfo.getEndTime());
+//            setMeetingName(s + "\n\n" + next);
+//        }
+//    };
 
     private void setMeetingName(final String name){
         runOnUiThread(new Runnable() {
@@ -235,7 +235,7 @@ public class WelComeSmallActivity extends BaseGpioActivity {
         tvMeeting.postDelayed(new Runnable() {
             @Override
             public void run() {
-                MeetingLoader.i().loadNext(meetInfo.getNum(),loadListener);
+//                DataLoader.i().loadNext(meetInfo.getNum(),loadListener);
             }
         },2000);
         RecordManager.get().setCurrMeet(meetInfo.getId());

@@ -1,5 +1,6 @@
 package com.yunbiao.yb_smart_meeting.activity.fragment.child;
 
+import android.os.Bundle;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +28,15 @@ public class MediaFragment extends BaseFragment {
     private RecyclerView rlvMedia;
     private MediaAdapter myAdapter;
     private List<AdvertInfo> advertInfos = new ArrayList<>();
+    private View avlLoad;
+
+    public static MediaFragment instance(String key, long meetId) {
+        MediaFragment mediaFragment = new MediaFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong(key, meetId);
+        mediaFragment.setArguments(bundle);
+        return mediaFragment;
+    }
 
     @Override
     protected int setLayout() {
@@ -36,12 +46,14 @@ public class MediaFragment extends BaseFragment {
     @Override
     protected void initView() {
         rlvMedia = find(R.id.rlv_media);
+        avlLoad = find(R.id.avl_load);
+
         ViewPagerLayoutManager viewPagerLayoutManager = new ViewPagerLayoutManager(getContext(), OrientationHelper.VERTICAL, false);
         rlvMedia.setLayoutManager(viewPagerLayoutManager);
         rlvMedia.setNestedScrollingEnabled(false);
         rlvMedia.setOnFlingListener(null);
 
-        myAdapter = new MediaAdapter(getActivity(), advertInfos,rlvMedia);
+        myAdapter = new MediaAdapter(getActivity(), advertInfos, rlvMedia);
         myAdapter.bindData();
 
         PagerSnapHelper snapHelper = new PagerSnapHelper();
@@ -78,57 +90,26 @@ public class MediaFragment extends BaseFragment {
 
     @Override
     protected void initData() {
-        showLoading();
-    }
-
-    @Override
-    public void update(MeetingEvent event) {
-        if(event.getState() == MeetingEvent.GET_MEETING_FAILED){
-            return;
-        }
-        MeetInfo meetInfo = event.getMeetInfo();
-        int state = event.getState();
-        advertInfos.clear();
-        myAdapter.notifyDataSetChanged();
-
-        switch (state) {
-            case MeetingEvent.GET_NO_MEETING:
-                rlvMedia.setVisibility(View.GONE);
-                showTips("暂无会议");
-                break;
-            case MeetingEvent.LOAD_PRELOAD:
-            case MeetingEvent.LOAD_BEGAN:
-                loadAdvert(meetInfo);
-                break;
-        }
-    }
-
-    private void loadAdvert(MeetInfo meetInfo) {
-        rlvMedia.setVisibility(View.GONE);
-        if (meetInfo == null) {
-            showTips("暂无会议安排");
-            return;
-        }
-        long id = meetInfo.getId();
-        final List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(id);
+//        long meetId = getArguments().getLong("meetId");
+        MeetInfo meetInfo = DaoManager.get().queryMeetInfoByNum(1);
+        long meetId = meetInfo.getId();
+        List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(meetId);
         if (advertInfos == null || advertInfos.size() <= 0) {
+            showTips("暂无播放资源");
             EventBus.getDefault().post(new NoMediaDataEvent());
-            showTips("暂无宣传资源");
             return;
         }
-        hideLoadingAndTips();
+        hideTips();
 
-        d("打印全部广告资源--------------");
-        for (AdvertInfo advertInfo : advertInfos) {
-            d(advertInfo.toString());
-        }
+        loadAdvert(advertInfos);
+    }
 
-        showLoading();
+    private void loadAdvert(final List<AdvertInfo> advertInfos) {
+        rlvMedia.setVisibility(View.GONE);
+        avlLoad.setVisibility(View.VISIBLE);
         Downloader.checkResource(advertInfos, new Runnable() {
             @Override
             public void run() {
-                hideLoadingAndTips();
-
                 d("资源已全部下载完成--------------");
                 loadMediaList(advertInfos);
             }
@@ -137,10 +118,8 @@ public class MediaFragment extends BaseFragment {
 
     private void loadMediaList(final List<AdvertInfo> advertInfos) {
         d("开始加载列表-----------");
-        for (AdvertInfo advertInfo : advertInfos) {
-            d(advertInfo.toString());
-        }
         rlvMedia.setVisibility(View.VISIBLE);
+        avlLoad.setVisibility(View.GONE);
         this.advertInfos.addAll(advertInfos);
         myAdapter.notifyDataSetChanged();
     }

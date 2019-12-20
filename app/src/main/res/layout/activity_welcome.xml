@@ -77,10 +77,15 @@
             android:background="@mipmap/frame_face"
             android:padding="5dp">
 
-            <com.yunbiao.yb_smart_meeting.faceview.FaceView
+            <com.faceview.FaceView
                 android:id="@+id/face_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"/>
+
+            <!--<com.yunbiao.yb_smart_meeting.faceview.FaceView
+                android:id="@+id/face_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />-->
 
             <com.wang.avi.AVLoadingIndicatorView
                 android:id="@+id/av_loading"

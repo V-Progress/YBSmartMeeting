@@ -11,6 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <include layout="@layout/layout_loading_f"/>
+    <com.wang.avi.AVLoadingIndicatorView
+        android:visibility="gone"
+        android:id="@+id/avl_load"
+        android:layout_gravity="center"
+        android:layout_width="120dp"
+        android:layout_height="match_parent" />
+
     <include layout="@layout/layout_tips_f"/>
 </FrameLayout>

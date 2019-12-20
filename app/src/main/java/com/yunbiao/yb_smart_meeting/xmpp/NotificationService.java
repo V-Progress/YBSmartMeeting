@@ -111,7 +111,7 @@ public class NotificationService extends Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        Log.d(LOGTAG, "onStart()...");
+        Log.d(LOGTAG, "onStartGetMeeting()...");
     }
 
     @Override

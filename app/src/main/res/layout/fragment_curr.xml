@@ -48,19 +48,19 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:text="会议时间:"
+                    android:text="发  起  人:"
                     android:textColor="@color/white"
                     android:textSize="30dp" />
-
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:text="会议状态:"
+                    android:text="会议时间:"
                     android:textColor="@color/white"
                     android:textSize="30dp" />
+
+
             </LinearLayout>
 
             <LinearLayout
@@ -74,17 +74,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:text="会议1"
-                    android:textColor="@color/white"
-                    android:textSize="30dp" />
-
-                <TextView
-                    android:id="@+id/tv_curr_meeting_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:text="2019-08-01 19:20  ~  2019-08-01 19:20"
+                    android:text=""
                     android:textColor="@color/white"
                     android:textSize="30dp" />
 
@@ -94,16 +84,22 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:text="即将开始"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="30dp" />
+
+                <TextView
+                    android:id="@+id/tv_curr_meeting_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:text=""
                     android:textColor="@color/white"
                     android:textSize="30dp" />
 
             </LinearLayout>
         </LinearLayout>
-
-        <include layout="@layout/layout_loading_f" />
-
-        <include layout="@layout/layout_tips_f" />
     </FrameLayout>
 
     <ScrollView
@@ -118,25 +114,80 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <FrameLayout
-                android:id="@+id/fl_guest_container"
+            <RelativeLayout
+                android:background="#4F000000"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:text="参会人员"
+                    android:textColor="@color/white"
+                    android:textSize="28dp" />
+
+                <LinearLayout
+                    android:layout_marginRight="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_gravity="bottom"
+                        android:textSize="18dp"
+                        android:textColor="@color/white"
+                        android:text="已签到"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <ImageView
+                        android:layout_gravity="bottom"
+                        android:src="@mipmap/signed"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp" />
+
+                    <TextView
+                        android:layout_gravity="bottom"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="18dp"
+                        android:textColor="@color/white"
+                        android:text="未签到"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <ImageView
+                        android:layout_gravity="bottom"
+                        android:src="@mipmap/nosigned"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <com.yunbiao.yb_smart_meeting.views.NoScrollGridView
+                android:overScrollMode="never"
+                android:numColumns="12"
+                android:id="@+id/grid_view"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <FrameLayout
-                android:id="@+id/fl_inside_container"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="#4F000000"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:text="会议流程"
+                android:textColor="@color/white"
+                android:textSize="28dp" />
 
-            <FrameLayout
-                android:id="@+id/fl_outside_container"
+            <com.yunbiao.yb_smart_meeting.views.NoScrollGridView
+                android:id="@+id/grid_view_flow"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
-            <FrameLayout
-                android:id="@+id/fl_flow_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
         </LinearLayout>
     </ScrollView>
 
