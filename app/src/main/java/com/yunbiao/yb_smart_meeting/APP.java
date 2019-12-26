@@ -1,5 +1,6 @@
 package com.yunbiao.yb_smart_meeting;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.smdt.SmdtManager;
 import android.content.Intent;
@@ -36,15 +37,15 @@ public class APP extends Application {
     private static APP instance;
     private static SmdtManager smdt;
     private static int companyId;
-    private static WelComeActivity activity;
+    private static Activity activity;
     private static XHApiManager xhApiManager;
     private static ServiceManager serviceManager;
 
-    public static WelComeActivity getActivity() {
+    public static Activity getActivity() {
         return activity;
     }
 
-    public static void setActivity(WelComeActivity activity) {
+    public static void setActivity(Activity activity) {
         APP.activity = activity;
     }
 

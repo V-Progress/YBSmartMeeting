@@ -201,7 +201,7 @@ public class UpdateManager {
                 is.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                WelComeActivity activity = APP.getActivity();
+                Activity activity = APP.getActivity();
                 if(activity != null){
                     UIUtils.showShort(activity,"下载失败");
                 }

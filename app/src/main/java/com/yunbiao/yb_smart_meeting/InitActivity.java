@@ -1,6 +1,7 @@
 package com.yunbiao.yb_smart_meeting;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,6 +15,7 @@ import com.faceview.FaceManager;
 import com.google.gson.Gson;
 import com.yunbiao.yb_smart_meeting.Access.WelComeSmallActivity;
 import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
+import com.yunbiao.yb_smart_meeting.activity.LandscapeMainActivity;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
 import com.yunbiao.yb_smart_meeting.afinel.PathManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
@@ -161,11 +163,32 @@ public class InitActivity extends AppCompatActivity {
 
     private void jump() {
         Intent intent = new Intent();
-        if (Config.deviceType == Config.DEVICE_MEETING_ACCESS) {
+
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            intent.setClass(InitActivity.this, WelComeActivity.class);
+        } else {
+            intent.setClass(InitActivity.this, LandscapeMainActivity.class);
+        }
+        /*if (Config.deviceType == Config.DEVICE_MEETING_ACCESS) {
             intent.setClass(InitActivity.this, WelComeSmallActivity.class);
         } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             intent.setClass(InitActivity.this, WelComeActivity.class);
-        }
+        }*/
         startActivity(intent);
         overridePendingTransition(0, 0);
         finish();

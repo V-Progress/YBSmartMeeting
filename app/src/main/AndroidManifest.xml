@@ -52,7 +52,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="label,allowBackup">
-        <activity android:name=".InitActivity"></activity>
+        <activity android:name=".activity.LandscapeMainActivity"></activity>
+        <activity android:name=".InitActivity" />
         <activity android:name=".Access.WelComeSmallActivity" />
         <activity
             android:name=".activity.ShareActivity"
@@ -116,8 +117,7 @@
 
         <service android:name=".utils.killSelfService" />
         <service android:name=".xmpp.NotificationService" />
-         <service android:name=".receiver.MyProtectService"></service>
-        <!-- 百度定位 -->
+        <service android:name=".receiver.MyProtectService" /> <!-- 百度定位 -->
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"

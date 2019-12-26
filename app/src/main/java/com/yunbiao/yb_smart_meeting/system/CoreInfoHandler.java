@@ -1,5 +1,6 @@
 package com.yunbiao.yb_smart_meeting.system;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.util.Log;
 
@@ -158,7 +159,7 @@ public class CoreInfoHandler {
                 }
                 break;
             case PUSH_TO_UPDATE:
-                WelComeActivity activity = APP.getActivity();
+                Activity activity = APP.getActivity();
                 UpdateVersionControl.getInstance().checkUpdate(activity);
                 break;
             case ADS_PUSH:

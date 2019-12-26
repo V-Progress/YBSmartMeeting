@@ -10,7 +10,11 @@ import com.yunbiao.yb_smart_meeting.activity.base.BaseActivity;
 import com.yunbiao.yb_smart_meeting.utils.CommonUtils;
 import com.yunbiao.yb_smart_meeting.utils.UIUtils;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SplashActivity extends BaseActivity {
@@ -48,6 +52,20 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void initData() {
+        // TODO: 2019/12/25 授权期限
+        String overTime = "2020-01-07 00:00:00";
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date currDate = new Date();
+        try {
+            Date overDate = dateFormat.parse(overTime);
+            if(currDate.after(overDate)){
+                find(R.id.tv_guoqi).setVisibility(View.VISIBLE);
+                return;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         //开启看门狗,只会在开机是启动一次
         APP.bindProtectService();
 

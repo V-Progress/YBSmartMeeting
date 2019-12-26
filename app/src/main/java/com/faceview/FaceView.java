@@ -332,10 +332,6 @@ public class FaceView extends FrameLayout {
 
                 if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && previewSize != null) {
                     for (int i = 0; i < facePreviewInfoList.size(); i++) {
-                        FacePreviewInfo facePreviewInfo = facePreviewInfoList.get(i);
-                        Log.e(TAG, "onPreview: " + i + " --- " + facePreviewInfo.getTrackId()+ " --- " + facePreviewInfo.getFaceInfo().getFaceId());
-
-
                         Integer status = requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId());
                         /**
                          * 在活体检测开启，在人脸识别状态不为成功或人脸活体状态不为处理中（ANALYZING）且不为处理完成（ALIVE、NOT_ALIVE）时重新进行活体检测

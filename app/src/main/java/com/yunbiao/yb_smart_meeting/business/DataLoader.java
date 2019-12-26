@@ -65,7 +65,7 @@ public class DataLoader {
                 isAutoThreadRunning = true;
                 requestMeeting();
             }
-        }, 3, 20, TimeUnit.SECONDS);
+        }, 3, 60, TimeUnit.SECONDS);
     }
 
     /***
@@ -89,13 +89,14 @@ public class DataLoader {
                     public void onError(Call call, Exception e, int id) {
                         d("获取失败：" + (e == null ? "NULL" : (e.getClass().getSimpleName() + ":" + e.getMessage())));
                         String error = e == null ? "UnknownException" : e.getMessage();
+
+                        //如果错误缓存不为空并且当前错误与错误缓存一样，证明上一次也是错误，无变化
                         if (!TextUtils.isEmpty(mError) && TextUtils.equals(error, mError)) {
                             callback.notChange();
-                        } else {
-                            //会议缓存为空代表第一次就获取失败，外部需提示
-                            if(TextUtils.isEmpty(mResponse)){
+                        } else {//如果错误缓存为空，并且响应缓存也为空，代表肯定是第一次请求，所以需要提示
+                            if (TextUtils.isEmpty(mResponse)) {
                                 callback.onErrorGetMeeting(e);
-                            } else {//会议缓存不为空代表会议更新失败，外部可提示可不提示
+                            } else {//响应缓存不为空，代表是请求刷新时失败，可以不处理
                                 callback.onErrorUpdateMeeting(e);
                             }
                         }
@@ -104,7 +105,8 @@ public class DataLoader {
 
                     @Override
                     public void onResponse(String response, int id) {
-                        d("获取成功：" + response);
+                        d("获取成功：" + (TextUtils.isEmpty(response) ? 0 : response.length()));
+
                         MeetingResponse meetingResponse = new Gson().fromJson(response, MeetingResponse.class);
                         //成功的时候把Error置为空
                         mError = "";
@@ -142,15 +144,26 @@ public class DataLoader {
      * 清除该公司下所有的会议和其他信息
      */
     public void clearDataByCurrCompany() {
+        d("*************************************************************************");
         int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
         List<MeetInfo> meetInfos = DaoManager.get().queryMeetByComId(comId);
         DaoManager.get().deleteMeetInfos(meetInfos);
+        d("clearDataByCurrCompany: 清除会议数据：" + (meetInfos == null ? 0 : meetInfos.size()));
+
         List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByComId(comId);
         DaoManager.get().deleteEntryInfos(entryInfos);
+        d("clearDataByCurrCompany: 清除员工数据：" + (entryInfos == null ? 0 : entryInfos.size()));
+
         List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByComdId(comId);
         DaoManager.get().deleteAdvertInfos(advertInfos);
+        d("clearDataByCurrCompany: 清除广告数据：" + (advertInfos == null ? 0 : advertInfos.size()));
+
         List<FlowInfo> flowInfos = DaoManager.get().queryFlowByComId(comId);
         DaoManager.get().deleteFlowInfos(flowInfos);
+        d("clearDataByCurrCompany: 清除节点数据：" + (flowInfos == null ? 0 : flowInfos.size()));
+        d("*************************************************************************");
+        d("\n");
+        d("\n");
     }
 
     /***
@@ -161,30 +174,39 @@ public class DataLoader {
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                clearDataByCurrCompany();
-
-                d("处理会议");
+//                clearDataByCurrCompany();
                 int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
-                //删除不存在的会议
                 List<Meet> meetArray = meetingResponse.getMeetArray();
-                d("handleData: 服务端会议总数：" + meetArray.size());
 
+                //删除不存在的会议
                 //更新会议信息（附带会清除被删除会议的员工、广告、节点）
+                d("会议信息同步.....................................");
                 updateMeetInfo(comId, meetArray);
-
+                d("会议信息同步结束..................................");
+                d("\n");
+                d("\n");
                 for (Meet meet : meetArray) {
                     MeetInfo meetInfo = meet.getMeetInfo();
-                    meetInfo.setComId(comId);
+
+                    d("**************************************************************************");
+                    d("开始处理：" + meetInfo.getName() + " 的数据");
 
                     long meetId = meetInfo.getId();
+
+                    d("\n-------------------------");
                     List<EntryInfo> entryArray = meet.getEntryArray();
                     updateEntryInfo(comId, meetId, entryArray);
 
+                    d("\n--------------------------");
                     List<AdvertInfo> advertArray = meet.getAdvertArray();
                     updateAdvertInfo(comId, meetId, advertArray);
 
+                    d("\n---------------------------");
                     List<FlowInfo> flowArray = meet.getFlowArray();
                     updateFlowInfo(comId, meetId, flowArray);
+                    d("**************************************************************************");
+                    d("\n");
+                    d("\n");
                 }
 
                 callback.onFinished();
@@ -208,26 +230,40 @@ public class DataLoader {
         }
 
         List<MeetInfo> meetInfoList = DaoManager.get().queryMeetInfoByComId(comId);
+        d("远程服务器中的会议数：" + remoteData.size());
+        d("当前数据库中的会议数：" + (meetInfoList == null ? 0 : meetInfoList.size()));
+
+        int num = 0;
         Iterator<MeetInfo> iterator = meetInfoList.iterator();
         while (iterator.hasNext()) {
             MeetInfo next = iterator.next();
             long meetId = next.getId();
             if (!remoteData.containsKey(meetId)) {
+                d(".....删除：" + next.getName());
                 List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetId);
                 DaoManager.get().deleteEntryInfos(entryInfos);
+                d("......删除员工：" + (entryInfos == null ? 0 : entryInfos.size()));
+
                 List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(meetId);
                 DaoManager.get().deleteAdvertInfos(advertInfos);
+                d(".....删除广告：" + (advertInfos == null ? 0 : advertInfos.size()));
+
                 List<FlowInfo> flowInfos = DaoManager.get().queryFlowByMeetId(meetId);
                 DaoManager.get().deleteFlowInfos(flowInfos);
+                d(".....删除节点：" + (flowInfos == null ? 0 : flowInfos.size()));
+
                 iterator.remove();
                 DaoManager.get().delete(next);
+                num++;
             }
         }
+        d("共删除不存在的会议：" + num);
 
         for (Map.Entry<Long, MeetInfo> entry : remoteData.entrySet()) {
             MeetInfo value = entry.getValue();
             DaoManager.get().addOrUpdate(value);
         }
+        d("已添加或更新会议信息数：" + remoteData.size());
     }
 
     /***
@@ -249,20 +285,27 @@ public class DataLoader {
 
         //删除不存在的员工
         List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(meetId);
+        d("远程服务器中共有员工数：" + remoteData.size());
+        d("当前数据库中共有员工数：" + (entryInfos == null ? 0 : entryInfos.size()));
+
+        int num = 0;
         Iterator<EntryInfo> iterator = entryInfos.iterator();
         while (iterator.hasNext()) {
             EntryInfo entryInfo = iterator.next();
             if (!remoteData.containsKey(entryInfo.getMeetEntryId())) {
                 iterator.remove();
                 DaoManager.get().delete(entryInfo);
+                num++;
             }
         }
+        d("已删除不存在的员工：" + num);
 
         //添加或更新数据库
         for (Map.Entry<String, EntryInfo> entryInfoEntry : remoteData.entrySet()) {
             EntryInfo value = entryInfoEntry.getValue();
             DaoManager.get().addOrUpdate(value);
         }
+        d("已添加或更新员工数：" + remoteData.size());
     }
 
     /***
@@ -284,19 +327,28 @@ public class DataLoader {
 
         //删除不存在的员工
         List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(meetId);
-        Iterator<AdvertInfo> iterator = advertInfos.iterator();
-        while (iterator.hasNext()) {
-            AdvertInfo advertInfo = iterator.next();
-            if (!remoteData.containsKey(advertInfo.getAdvertId())) {
-                iterator.remove();
-                DaoManager.get().delete(advertInfo);
+        d("远程服务器中的数据：" + remoteData.size());
+        d("当前数据库中的数据：" + (advertInfos == null ? 0 : advertInfos.size()));
+
+        int num = 0;
+        if (advertInfos != null) {
+            Iterator<AdvertInfo> iterator = advertInfos.iterator();
+            while (iterator.hasNext()) {
+                AdvertInfo advertInfo = iterator.next();
+                if (!remoteData.containsKey(advertInfo.getAdvertId())) {
+                    iterator.remove();
+                    DaoManager.get().delete(advertInfo);
+                    num++;
+                }
             }
         }
+        d("共删除不存在的数据：" + num);
 
         for (Map.Entry<Integer, AdvertInfo> entry : remoteData.entrySet()) {
             AdvertInfo value = entry.getValue();
             DaoManager.get().addOrUpdate(value);
         }
+        d("已添加或更新广告数：" + remoteData.size());
     }
 
     /***
@@ -314,22 +366,32 @@ public class DataLoader {
         }
 
         List<FlowInfo> flowInfos = DaoManager.get().queryFlowByMeetId(meetId);
-        Iterator<FlowInfo> iterator = flowInfos.iterator();
-        while (iterator.hasNext()) {
-            FlowInfo flowInfo = iterator.next();
-            if (!remoteData.containsKey(flowInfo.getBegin() + flowInfo.getEnd())) {
-                iterator.remove();
-                DaoManager.get().delete(flowInfo);
+        d("远程服务器中的节点数：" + remoteData.size());
+        d("当前数据库中的节点数：" + flowInfos.size());
+
+        int num = 0;
+        if (flowInfos != null) {
+            Iterator<FlowInfo> iterator = flowInfos.iterator();
+            while (iterator.hasNext()) {
+                FlowInfo flowInfo = iterator.next();
+                if (!remoteData.containsKey(flowInfo.getBegin() + flowInfo.getEnd())) {
+                    iterator.remove();
+                    DaoManager.get().delete(flowInfo);
+                    num++;
+                }
             }
         }
+        d("已删除不存在的节点：" + num);
 
         for (Map.Entry<String, FlowInfo> entry : remoteData.entrySet()) {
             FlowInfo flow = entry.getValue();
             DaoManager.get().addOrUpdate(flow);
         }
+        d("已添加或更新节点数：" + remoteData.size());
     }
 
-    private void checkData(){
+    private void checkData() {
+        d("================================================================================");
         List<MeetInfo> meetInfoList = DaoManager.get().queryAll(MeetInfo.class);
         d("handleData: 222会议总数：" + meetInfoList.size());
         for (MeetInfo meetInfo : meetInfoList) {
@@ -338,7 +400,7 @@ public class DataLoader {
 
             List<EntryInfo> entryInfos = DaoManager.get().queryEntryInfoByMeetId(id);
             for (EntryInfo entryInfo : entryInfos) {
-                d( "----- 员工信息：" + entryInfo.getMeetId() + " --- " + entryInfo.getName() + " --- " + entryInfo.getMeetEntryId());
+                d("----- 员工信息：" + entryInfo.getMeetId() + " --- " + entryInfo.getName() + " --- " + entryInfo.getMeetEntryId());
             }
 
             List<AdvertInfo> advertInfos = DaoManager.get().queryAdvertByMeetId(id);
@@ -351,6 +413,7 @@ public class DataLoader {
                 d("----- 节点信息：" + flowInfo.getMeetId() + " --- " + flowInfo.getBegin() + " --- " + flowInfo.getEnd());
             }
         }
+        d("================================================================================");
     }
 
     private void d(String log) {
@@ -402,7 +465,7 @@ public class DataLoader {
         void onFinish();
     }
 
-    public interface HandleDataCallback{
+    public interface HandleDataCallback {
         void onFinished();
     }
 }
