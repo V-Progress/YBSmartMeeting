@@ -48,4 +48,15 @@
             android:textSize="32dp" />
     </RelativeLayout>
 
+    <TextView
+        android:onClick="exit"
+        android:background="@android:color/transparent"
+        android:layout_alignParentRight="true"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+    <TextView
+        android:onClick="goSetting"
+        android:background="@android:color/transparent"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
 </RelativeLayout>

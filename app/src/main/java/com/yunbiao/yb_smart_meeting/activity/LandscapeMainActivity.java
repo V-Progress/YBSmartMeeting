@@ -103,6 +103,37 @@ public class LandscapeMainActivity extends BaseGpioActivity {
         KDXFSpeechManager.instance().init(this);
     }
 
+    public void exit(View view) {
+        RestartAPPTool.showExitDialog(this, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                inputPwd(new Runnable() {
+                    @Override
+                    public void run() {
+                        moveTaskToBack(true);
+                    }
+                });
+            }
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                inputPwd(new Runnable() {
+                    @Override
+                    public void run() {
+                        APP.exit();
+                    }
+                });
+            }
+        });
+    }
+
+
+    public void goSetting(View view) {
+
+        goSetting();
+    }
+
+
     class MeetingAdapter extends RecyclerView.Adapter<VH> {
         private List<MeetInfo> meetInfoList;
 
