@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_meeting_h">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="30dp"
+            android:src="@mipmap/logo_smartiot" />
+
+
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="30dp"
+            android:format24Hour="yyyy/MM/dd HH:mm"
+            android:textColor="@color/white"
+            android:textSize="32px" />
+
+        <TextView
+            android:id="@+id/tv_roomName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="180dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="大会议室101"
+            android:textColor="@color/white"
+            android:textSize="80dp" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_main"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_below="@+id/tv_roomName"
+            android:layout_marginTop="140dp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rl_main_will"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/bg_meet_soon_h">
+
+
+                <TextView
+                    android:id="@+id/tv_tip_will"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="106dp"
+                    android:gravity="center"
+                    android:text="即将开始"
+                    android:textColor="@color/white"
+                    android:textSize="60dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_below="@+id/tv_tip_will"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="30dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/icon_time" />
+
+                    <TextView
+                        android:id="@+id/tv_meetTime_will"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="18:00 - 19:00"
+                        android:textColor="@color/white"
+                        android:textSize="16dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="40dp"
+                        android:src="@mipmap/icon_people" />
+
+                    <TextView
+                        android:id="@+id/tv_meetPlanner_will"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="张阳阳"
+                        android:textColor="@color/white"
+                        android:textSize="16dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="40dp"
+                        android:src="@mipmap/icon_title" />
+
+                    <TextView
+                        android:id="@+id/tv_meetTheme_will"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="财务部年度总结会议"
+                        android:textColor="@color/white"
+                        android:textSize="16dp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/rl_main_meeting"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/bg_meet_meeting_h">
+
+                <TextView
+                    android:id="@+id/tv_theme_meeting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="90dp"
+                    android:gravity="center"
+                    android:text="AI人脸项目小组会议"
+                    android:textColor="@color/white"
+                    android:textSize="60dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_below="@+id/tv_theme_meeting"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="30dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tv_meetTime_meeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:gravity="center"
+                        android:text="18:00 - 19:00"
+                        android:textColor="@color/white"
+                        android:textSize="40dp" />
+
+                    <TextView
+                        android:id="@+id/tv_meetPlanner_meeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="60dp"
+                        android:gravity="center"
+                        android:text="张阳阳"
+                        android:textColor="@color/white"
+                        android:textSize="40dp" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_main_noMeet"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@mipmap/bg_meet_nomeeting_h">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="暂无会议"
+                    android:textColor="@color/white"
+                    android:textSize="80dp" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_meetList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ll_main"
+            android:layout_marginTop="78dp">
+
+
+            <TextView
+                android:id="@+id/tv_xcxrk_t"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="80dp"
+                android:layout_marginBottom="40dp"
+                android:gravity="center"
+                android:text="小程序二维码"
+                android:textColor="@color/white"
+                android:textSize="14dp" />
+
+            <ImageView
+                android:id="@+id/iv_qrCode"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_above="@+id/tv_xcxrk_t"
+                android:layout_alignStart="@+id/tv_xcxrk_t"
+                android:layout_marginBottom="8dp"
+                android:scaleType="fitXY"
+                android:src="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/tv_hylk_t"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/iv_qrCode"
+                android:layout_alignStart="@+id/iv_qrCode"
+                android:layout_marginBottom="20dp"
+                android:text="会议入口:"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_hyap_t"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+                android:text="会议安排:"
+                android:textColor="@color/white"
+                android:textSize="20dp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rl_meetings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/tv_hylk_t"
+                android:layout_below="@+id/tv_hyap_t"
+                android:layout_alignStart="@+id/tv_hyap_t"
+                android:layout_marginTop="30dp" />
+        </RelativeLayout>
+
+        <com.faceview.FaceView
+            android:visibility="invisible"
+            android:id="@+id/face_view"
+            android:layout_width="320dp"
+            android:layout_height="180dp"/>
+    </RelativeLayout>
+
+</FrameLayout>

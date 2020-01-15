@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="30dp"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/icon_time" />
+
+    <TextView
+        android:id="@+id/tv_meet_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="18:00 ~ 19:00"
+        android:textColor="@color/white"
+        android:textSize="20dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:src="@mipmap/icon_people" />
+
+    <TextView
+        android:id="@+id/tv_meet_planner"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="张阳阳"
+        android:textColor="@color/white"
+        android:textSize="20dp"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:src="@mipmap/icon_title" />
+
+    <TextView
+        android:id="@+id/tv_meet_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="财务部年度总结会议"
+        android:textColor="@color/white"
+        android:textSize="20dp"/>
+
+</LinearLayout>
+

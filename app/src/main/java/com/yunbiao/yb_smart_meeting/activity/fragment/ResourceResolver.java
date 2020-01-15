@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.yunbiao.yb_smart_meeting.activity.Event.IntroduceUpdateEvent;
 import com.yunbiao.yb_smart_meeting.afinel.Constants;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
-import com.yunbiao.yb_smart_meeting.bean.IntroduceBean;
+import com.yunbiao.yb_smart_meeting.model.IntroduceBean;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 import com.yunbiao.yb_smart_meeting.utils.xutil.MyXutils;
 import com.zhy.http.okhttp.OkHttpUtils;

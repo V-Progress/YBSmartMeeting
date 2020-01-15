@@ -29,7 +29,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseActivity;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
-import com.yunbiao.yb_smart_meeting.bean.BaseResponse;
+import com.yunbiao.yb_smart_meeting.model.BaseResponse;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.DepartBean;
 import com.yunbiao.yb_smart_meeting.db2.UserBean;

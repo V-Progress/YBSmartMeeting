@@ -7,8 +7,8 @@ android {
         applicationId "com.yunbiao.yb_smart_meeting"
         minSdkVersion 22
         targetSdkVersion 22
-        versionCode 54
-        versionName "1.1.0"
+        versionCode 55
+        versionName "1.2.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         flavorDimensions "default"
         ndk {
@@ -58,6 +58,7 @@ android {
         }
     }
 
+    //编译后修改apk名
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "YBSmartMeeting" + defaultConfig.versionName + "." + defaultConfig.versionCode + "_" + buildTime() + ".apk"

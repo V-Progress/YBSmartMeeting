@@ -1,25 +1,25 @@
 package com.yunbiao.yb_smart_meeting;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.faceview.Constants;
-import com.faceview.FaceManager;
 import com.google.gson.Gson;
-import com.yunbiao.yb_smart_meeting.Access.WelComeSmallActivity;
 import com.yunbiao.yb_smart_meeting.activity.Event.SysInfoUpdateEvent;
-import com.yunbiao.yb_smart_meeting.activity.LandscapeMainActivity;
+import com.yunbiao.yb_smart_meeting.activity.MeetingActivity;
 import com.yunbiao.yb_smart_meeting.activity.WelComeActivity;
 import com.yunbiao.yb_smart_meeting.afinel.PathManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
-import com.yunbiao.yb_smart_meeting.bean.CompanyBean;
+import com.yunbiao.yb_smart_meeting.model.CompanyBean;
 import com.yunbiao.yb_smart_meeting.business.DialogUtil;
 import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
@@ -122,6 +122,7 @@ public class InitActivity extends AppCompatActivity {
                         SpUtils.saveInt(SpUtils.COMPANY_ID, comid);
                         SpUtils.saveStr(SpUtils.COMPANY_NAME, name);
                         SpUtils.saveStr(SpUtils.MENU_PWD, pwd);
+                        
                         SpUtils.saveStr(SpUtils.COMPANY_LOGO, logoUrl);
                     }
 
@@ -164,36 +165,26 @@ public class InitActivity extends AppCompatActivity {
     private void jump() {
         Intent intent = new Intent();
 
+        double screenPhysicalSize = getScreenPhysicalSize(this);
+        Log.e(TAG, "jump: 屏幕尺寸：" + screenPhysicalSize);
+
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             intent.setClass(InitActivity.this, WelComeActivity.class);
         } else {
-            intent.setClass(InitActivity.this, LandscapeMainActivity.class);
+            intent.setClass(InitActivity.this, MeetingActivity.class);
         }
-        /*if (Config.deviceType == Config.DEVICE_MEETING_ACCESS) {
-            intent.setClass(InitActivity.this, WelComeSmallActivity.class);
-        } else {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            intent.setClass(InitActivity.this, WelComeActivity.class);
-        }*/
         startActivity(intent);
         overridePendingTransition(0, 0);
         finish();
     }
-
+    public static double getScreenPhysicalSize(Activity ctx) {
+        DisplayMetrics dm = new DisplayMetrics();
+        ctx.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        double diagonalPixels = Math.sqrt(Math.pow(dm.widthPixels, 2) + Math.pow(dm.heightPixels, 2));
+        return diagonalPixels / (160 * dm.density);
+    }
     private Runnable retryRunnable = new Runnable() {
         @Override
         public void run() {

@@ -87,7 +87,6 @@
                 android:layout_height="match_parent" />-->
 
             <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/av_loading"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
@@ -113,7 +112,6 @@
                     android:layout_height="match_parent" />
 
                 <com.wang.avi.AVLoadingIndicatorView
-                    android:id="@+id/aiv_person_loading"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="20dp"

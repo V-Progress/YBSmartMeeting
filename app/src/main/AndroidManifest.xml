@@ -52,7 +52,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="label,allowBackup">
-        <activity android:name=".activity.LandscapeMainActivity"></activity>
         <activity android:name=".InitActivity" />
         <activity android:name=".Access.WelComeSmallActivity" />
         <activity
@@ -94,6 +93,8 @@
         <activity
             android:name=".xmpp.NotificationSettingsActivity"
             android:label="Notification Settings" />
+
+        <activity android:name=".activity.MeetingActivity" />
 
         <service android:name="com.huashi.otg.sdk.HsOtgService" />
 

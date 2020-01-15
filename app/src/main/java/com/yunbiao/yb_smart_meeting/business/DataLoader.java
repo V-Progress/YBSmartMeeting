@@ -7,8 +7,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.yunbiao.yb_smart_meeting.afinel.PathManager;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
-import com.yunbiao.yb_smart_meeting.bean.meet_model.Meet;
-import com.yunbiao.yb_smart_meeting.bean.meet_model.MeetingResponse;
+import com.yunbiao.yb_smart_meeting.model.meet_model.Meet;
+import com.yunbiao.yb_smart_meeting.model.meet_model.MeetingResponse;
 import com.yunbiao.yb_smart_meeting.db2.AdvertInfo;
 import com.yunbiao.yb_smart_meeting.db2.DaoManager;
 import com.yunbiao.yb_smart_meeting.db2.EntryInfo;
@@ -209,9 +209,9 @@ public class DataLoader {
                     d("\n");
                 }
 
-                callback.onFinished();
-
                 checkData();
+
+                callback.onFinished();
             }
         });
     }
