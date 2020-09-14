@@ -8,6 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -62,7 +65,10 @@ public class MeetingActivity extends BaseGpioActivity {
     private RelativeLayout rl_main_noMeet;
     private RelativeLayout rl_meetList;
     private FaceView faceView;
+    private View loading;
     private AlertDialog bindAlertDialog;
+    private ScaleAnimation showCameraAnim;
+    private ScaleAnimation dismissCameraAnim;
 
     @Override
     protected int getPortraitLayout() {
@@ -78,6 +84,7 @@ public class MeetingActivity extends BaseGpioActivity {
     protected void initView() {
         APP.setActivity(this);
 
+        loading = findViewById(R.id.av_loading);
         tv_roomName = findViewById(R.id.tv_roomName);
         tv_meetTime_will = findViewById(R.id.tv_meetTime_will);
         tv_meetPlanner_will = findViewById(R.id.tv_meetPlanner_will);
@@ -101,7 +108,8 @@ public class MeetingActivity extends BaseGpioActivity {
 
     @Override
     protected void initData() {
-
+        showCameraAnim = (ScaleAnimation) AnimationUtils.loadAnimation(this,R.anim.faceview_open_anim);
+        dismissCameraAnim = (ScaleAnimation) AnimationUtils.loadAnimation(this,R.anim.faceview_close_anim);
     }
 
     private FaceView.FaceCallback faceCallback = new FaceView.FaceCallback() {
@@ -142,7 +150,27 @@ public class MeetingActivity extends BaseGpioActivity {
 
     private void showCamera() {
         if (!faceView.isShown()) {
-            faceView.setVisibility(View.VISIBLE);
+            faceView.post(() -> {
+                showCameraAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        faceView.post(() -> faceView.setVisibility(View.VISIBLE));
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                faceView.startAnimation(showCameraAnim);
+            });
+
+            Log.e(TAG, "showCamera: 显示摄像头画面");
         }
 
         faceView.removeCallbacks(invisibleRunnable);
@@ -153,7 +181,24 @@ public class MeetingActivity extends BaseGpioActivity {
         @Override
         public void run() {
             if (faceView.isShown()) {
-                faceView.setVisibility(View.INVISIBLE);
+                dismissCameraAnim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        Log.e(TAG, "run: 隐藏摄像头画面");
+                        faceView.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                faceView.startAnimation(dismissCameraAnim);
             }
         }
     };
@@ -213,6 +258,9 @@ public class MeetingActivity extends BaseGpioActivity {
 
         @Override
         public void onFinish() {
+            if(loading != null){
+                loading.setVisibility(View.GONE);
+            }
             Log.e(TAG, "onFinish------- ");
         }
     };

@@ -31,6 +31,7 @@ import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
 import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.R;
+import com.yunbiao.yb_smart_meeting.views.ScanningImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -128,6 +129,8 @@ public class FaceView extends FrameLayout {
 
     private View previewView;
 
+    private ScanningImageView scanningImageView;
+
     /**
      * 绘制人脸框的控件
      */
@@ -156,9 +159,29 @@ public class FaceView extends FrameLayout {
         //在布局结束后才做初始化操作
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener);
         addView(previewView, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+        previewView.setOutlineProvider(new FaceViewOutlineProvider(6));
+        previewView.setClipToOutline(true);
 
         faceRectView = new FaceRectView(getContext());
         addView(faceRectView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        faceRectView.setOutlineProvider(new FaceViewOutlineProvider(6));
+        faceRectView.setClipToOutline(true);
+
+        scanningImageView = new ScanningImageView(getContext());
+        addView(scanningImageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if(scanningImageView == null){
+            return;
+        }
+        if(visibility == VISIBLE){
+            scanningImageView.start();
+        } else {
+            scanningImageView.stop();
+        }
     }
 
     private boolean isInited = false;

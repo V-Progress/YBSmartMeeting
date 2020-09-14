@@ -27,9 +27,9 @@ public class DaoMaster extends AbstractDaoMaster {
         FlowInfoDao.createTable(db, ifNotExists);
         MeetInfoDao.createTable(db, ifNotExists);
         PassageBeanDao.createTable(db, ifNotExists);
+        RecordInfoDao.createTable(db, ifNotExists);
         UserBeanDao.createTable(db, ifNotExists);
         VisitorBeanDao.createTable(db, ifNotExists);
-        RecordInfoDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -40,9 +40,9 @@ public class DaoMaster extends AbstractDaoMaster {
         FlowInfoDao.dropTable(db, ifExists);
         MeetInfoDao.dropTable(db, ifExists);
         PassageBeanDao.dropTable(db, ifExists);
+        RecordInfoDao.dropTable(db, ifExists);
         UserBeanDao.dropTable(db, ifExists);
         VisitorBeanDao.dropTable(db, ifExists);
-        RecordInfoDao.dropTable(db, ifExists);
     }
 
     /**
@@ -67,9 +67,9 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(FlowInfoDao.class);
         registerDaoClass(MeetInfoDao.class);
         registerDaoClass(PassageBeanDao.class);
+        registerDaoClass(RecordInfoDao.class);
         registerDaoClass(UserBeanDao.class);
         registerDaoClass(VisitorBeanDao.class);
-        registerDaoClass(RecordInfoDao.class);
     }
 
     public DaoSession newSession() {
