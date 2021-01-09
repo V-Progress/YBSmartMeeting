@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
 import com.faceview.Constants;
@@ -22,6 +23,8 @@ import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.model.CompanyBean;
 import com.yunbiao.yb_smart_meeting.business.DialogUtil;
 import com.yunbiao.yb_smart_meeting.system.HeartBeatClient;
+import com.yunbiao.yb_smart_meeting.utils.CommonUtils;
+import com.yunbiao.yb_smart_meeting.utils.NetworkUtils;
 import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
@@ -124,6 +127,8 @@ public class InitActivity extends AppCompatActivity {
                         SpUtils.saveStr(SpUtils.MENU_PWD, pwd);
                         
                         SpUtils.saveStr(SpUtils.COMPANY_LOGO, logoUrl);
+
+                        PathManager.init(comid);
                     }
 
                     @Override
@@ -132,7 +137,7 @@ public class InitActivity extends AppCompatActivity {
 
                         if (result == 1) {
                             Log.e(TAG, "onAfter: 加载成功，跳转");
-                            activeFaceSDK();
+                            active();
                         } else if (result == 4) {
                             Log.e(TAG, "onAfter: 未绑定公司，等待重试");
                             DialogUtil.showTimerAlertDialog(InitActivity.this, "编号：" + deviceNumber + "，绑定码：" + bindCode, "该设备未绑定公司，请先绑定", 60, retryRunnable);
@@ -140,7 +145,7 @@ public class InitActivity extends AppCompatActivity {
                             int anInt = SpUtils.getInt(SpUtils.COMPANY_ID);
                             if (anInt > 0) {
                                 Log.e(TAG, "onAfter: 有缓存，跳转");
-                                activeFaceSDK();
+                                active();
                             } else {
                                 DialogUtil.showTimerAlertDialog(InitActivity.this, "编号：" + deviceNumber + "，绑定码：" + bindCode, "请求失败，请检查网络", 30, retryRunnable);
                             }
@@ -149,16 +154,82 @@ public class InitActivity extends AppCompatActivity {
                 });
     }
 
-    private void activeFaceSDK() {
-        int comId = SpUtils.getInt(SpUtils.COMPANY_ID);
-        PathManager.init(comId);
+    private void active(){
+        Log.d(TAG,"检查虹软激活信息");
+        ActiveFileInfo activeFileInfo = new ActiveFileInfo();
+        int code = FaceEngine.getActiveFileInfo(APP.getContext(), activeFileInfo);
+        if(code == ErrorInfo.MOK
+                && !TextUtils.isEmpty(activeFileInfo.getAppId())
+                && !TextUtils.isEmpty(activeFileInfo.getSdkKey())){
+            int activeCode = FaceEngine.active(APP.getContext(), activeFileInfo.getAppId(), activeFileInfo.getSdkKey());
+            Log.d(TAG,"激活结果：" + activeCode);
+            if(activeCode == ErrorInfo.MOK || activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED){
+                Log.e(TAG, "激活成功或已激活");
+                jump();
+                return;
+            }
+        }
+        String wifiMac = CommonUtils.getWifiMac();
+        if (!TextUtils.isEmpty(wifiMac)) {
+            wifiMac = wifiMac.replace(":", "-");
+        } else {
+            wifiMac = "";
+        }
+        String localMac = NetworkUtils.getLocalMacAddress();
+        if (!TextUtils.isEmpty(localMac)) {
+            localMac = localMac.replace(":", "-");
+        } else {
+            localMac = "";
+        }
 
-        int active = FaceEngine.active(APP.getContext(), Constants.APP_ID, Constants.SDK_KEY);
+        String url = ResourceUpdate.GET_ACTIVE_CODE;
+        Map<String,String> params = new HashMap<>();
+        params.put("deviceNo", HeartBeatClient.getDeviceNo());
+        params.put("type", "0");
+        params.put("wifiMac", wifiMac);
+        params.put("localMac", localMac);
+        OkHttpUtils.post().url(url).params(params).build()
+                .connTimeOut(10000).writeTimeOut(10000).readTimeOut(10000)
+                .execute(new StringCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                Toast.makeText(InitActivity.this, "激活失败：" + (e == null ? "NULL" : e.getMessage()), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                Log.d(TAG,"响应：%s" + response);
+                if(TextUtils.isEmpty(response)){
+                    Toast.makeText(InitActivity.this, "激活失败：Response null", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
+                    ActiveCodeResponse activeCodeResponse = new Gson().fromJson(response, ActiveCodeResponse.class);
+                    if (activeCodeResponse.getStatus() != 1) {
+                        Toast.makeText(InitActivity.this, "激活失败：" + activeCodeResponse.getStatus(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    activeFaceSDK(activeCodeResponse.getAppid(),activeCodeResponse.getSdk_key());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(InitActivity.this, "激活失败：" + (e == null ? "NULL" : e.getMessage()), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
+    }
+
+    private void activeFaceSDK(String appId,String sdkKey) {
+        int active = FaceEngine.active(APP.getContext(), appId, sdkKey);
         if (active == ErrorInfo.MOK || active == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
             Log.e(TAG, "激活成功或已激活");
             jump();
         } else {
-            Toast.makeText(InitActivity.this, "激活失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(InitActivity.this, "激活失败：" + active, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -170,7 +241,12 @@ public class InitActivity extends AppCompatActivity {
 
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            intent.setClass(InitActivity.this, WelComeActivity.class);
+            Integer broadType = CommonUtils.getBroadType();
+            if(broadType == 4){
+                intent.setClass(InitActivity.this, MeetingActivity.class);
+            } else {
+                intent.setClass(InitActivity.this, WelComeActivity.class);
+            }
         } else {
             intent.setClass(InitActivity.this, MeetingActivity.class);
         }

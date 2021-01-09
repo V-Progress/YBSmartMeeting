@@ -31,6 +31,8 @@ import com.arcsoft.face.enums.DetectFaceOrientPriority;
 import com.arcsoft.face.enums.DetectMode;
 import com.yunbiao.yb_smart_meeting.APP;
 import com.yunbiao.yb_smart_meeting.R;
+import com.yunbiao.yb_smart_meeting.afinel.Constants;
+import com.yunbiao.yb_smart_meeting.utils.SpUtils;
 import com.yunbiao.yb_smart_meeting.views.ScanningImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -125,7 +127,7 @@ public class FaceView extends FrameLayout {
     /**
      * 识别阈值
      */
-    private static final float SIMILAR_THRESHOLD = 0.75F;
+    private static float SIMILAR_THRESHOLD = 0.75F;
 
     private View previewView;
 
@@ -305,10 +307,14 @@ public class FaceView extends FrameLayout {
         CameraListener cameraListener = new CameraListener() {
             @Override
             public void onCameraOpened(Camera camera, int cameraId, int displayOrientation, boolean isMirror) {
+                boolean isHMirror = SpUtils.getBoolean(Constants.Key.FACE_H_MIRROR, Constants.Default.FACE_H_MIRROR);
+                boolean isVMirror = SpUtils.getBoolean(Constants.Key.FACE_V_MIRROR, Constants.Default.FACE_V_MIRROR);
+                livenessDetect = SpUtils.getBoolean(Constants.Key.LIVE_ENABLED,Constants.Default.LIVE_ENABLED);
+
                 Camera.Size lastPreviewSize = previewSize;
                 previewSize = camera.getParameters().getPreviewSize();
                 drawHelper = new DrawHelper(previewSize.width, previewSize.height, previewView.getWidth(), previewView.getHeight(), displayOrientation
-                        , cameraId, isMirror, true, false);
+                        , cameraId, isMirror, isHMirror, isVMirror);
                 Log.i(TAG, "onCameraOpened: " + drawHelper.toString());
                 Log.i(TAG, "CameraDisplayOrientation: " + drawHelper.getCameraDisplayOrientation());
                 // 切换相机的时候可能会导致预览尺寸发生变化
@@ -401,9 +407,11 @@ public class FaceView extends FrameLayout {
             }
         };
 
+        int intOrDef = SpUtils.getIntOrDef(Constants.Key.SIMILAR_THRESHOLD, Constants.Default.SIMILAR_THRESHOLD);
+        SIMILAR_THRESHOLD = ((float) intOrDef / 100);
         cameraHelper = new CameraHelper.Builder()
                 .previewViewSize(new Point(previewView.getMeasuredWidth(), previewView.getMeasuredHeight()))
-                .rotation(APP.getActivity().getWindowManager().getDefaultDisplay().getRotation())
+                .rotation(SpUtils.getIntOrDef(Constants.Key.RGB_CAMERA_ANGLE, Constants.Default.RGB_CAMERA_ANGLE))
                 .specificCameraId(rgbCameraID != null ? rgbCameraID : Camera.CameraInfo.CAMERA_FACING_FRONT)
                 .isMirror(false)
                 .previewOn(previewView)
@@ -413,7 +421,22 @@ public class FaceView extends FrameLayout {
         cameraHelper.start();
     }
 
+    public void changeAngle() {
+        int angle = SpUtils.getIntOrDef(com.yunbiao.yb_smart_meeting.afinel.Constants.Key.RGB_CAMERA_ANGLE, com.yunbiao.yb_smart_meeting.afinel.Constants.Default.RGB_CAMERA_ANGLE);
+        Log.e(TAG, "changeAngle111: " + angle);
+        if (cameraHelper != null) {
+            Log.e(TAG, "changeAngle222: " + angle);
+            cameraHelper.changeDisplayOrientation(angle);
+        }
+    }
+
     public void resume() {
+        boolean mirror = SpUtils.getBoolean(Constants.Key.FACE_H_MIRROR,Constants.Default.FACE_H_MIRROR);
+        if (drawHelper != null) {
+            Log.e(TAG, "resume: ---------- " + mirror);
+            drawHelper.setMirrorHorizontal(mirror);
+        }
+
         if (cameraHelper != null && isInited) {
             Log.e(TAG, "resume: helper不为null，并且已经初始化");
             cameraHelper.start();
@@ -470,13 +493,6 @@ public class FaceView extends FrameLayout {
         return null;
     }
 
-    public void setLiveness(boolean isChecked) {
-        livenessDetect = isChecked;
-    }
-
-    public boolean getLiveness(){
-        return livenessDetect;
-    }
 
     public interface FaceCallback {
         void onReady();
@@ -505,6 +521,7 @@ public class FaceView extends FrameLayout {
         VersionInfo versionInfo = new VersionInfo();
         ftEngine.getVersion(versionInfo);
         Log.i(TAG, "initEngine:  init: " + ftInitCode + "  version:" + versionInfo);
+        Log.i(TAG, "initEngine:  init: " + ftInitCode + " ," + frInitCode + " ," + flInitCode);
 
         if (ftInitCode != ErrorInfo.MOK) {
         }

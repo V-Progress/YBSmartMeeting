@@ -34,6 +34,7 @@ import com.yunbiao.yb_smart_meeting.Config;
 import com.yunbiao.yb_smart_meeting.R;
 import com.yunbiao.yb_smart_meeting.activity.Event.GpioEvent;
 import com.yunbiao.yb_smart_meeting.activity.base.BaseActivity;
+import com.yunbiao.yb_smart_meeting.afinel.Constants;
 import com.yunbiao.yb_smart_meeting.afinel.ResourceUpdate;
 import com.yunbiao.yb_smart_meeting.common.UpdateVersionControl;
 import com.yunbiao.yb_smart_meeting.faceview.camera.CameraSettings;
@@ -74,9 +75,6 @@ public class SettingActivity extends BaseActivity {
     private TextView tvNetState;
     private TextView tvCpuTemper;
     private TextView tvCamera;
-    private CheckBox cbMirror;
-    private Button btnAngle;
-    private Spinner spnCameraSize;
     private Switch swAlready;
 
     @Override
@@ -99,9 +97,6 @@ public class SettingActivity extends BaseActivity {
         tvNetState = findViewById(R.id.tv_wifi_state);
         tvCpuTemper = findViewById(R.id.tv_cpu_temper);
         tvCamera = findViewById(R.id.tv_camera);
-        cbMirror = findViewById(R.id.cb_mirror);
-        btnAngle = findViewById(R.id.btn_setAngle);
-        spnCameraSize = findViewById(R.id.spn_camera_size);
         swAlready = findViewById(R.id.sw_setting_already);
         findViewById(R.id.iv_back).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -113,6 +108,11 @@ public class SettingActivity extends BaseActivity {
             }
         });
 
+        initSetting();
+    }
+
+    private void initSetting(){
+        //门禁常开
         boolean aBoolean = SpUtils.getBoolean(SpUtils.DOOR_STATE, false);
         swAlready.setChecked(aBoolean);
         swAlready.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -121,6 +121,65 @@ public class SettingActivity extends BaseActivity {
                 EventBus.getDefault().postSticky(new GpioEvent(isChecked));
                 SpUtils.saveBoolean(SpUtils.DOOR_STATE,isChecked);
             }
+        });
+
+        //横向镜像开关
+        Switch swH = findViewById(R.id.sw_h_mirror);
+        boolean hMirror = SpUtils.getBoolean(Constants.Key.FACE_H_MIRROR, Constants.Default.FACE_H_MIRROR);
+        swH.setChecked(hMirror);
+        swH.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SpUtils.saveBoolean(Constants.Key.FACE_H_MIRROR,isChecked);
+        });
+
+        //纵向开关
+        Switch swV = findViewById(R.id.sw_v_mirror);
+        boolean vMirror = SpUtils.getBoolean(Constants.Key.FACE_V_MIRROR, Constants.Default.FACE_V_MIRROR);
+        swV.setChecked(vMirror);
+        swV.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SpUtils.saveBoolean(Constants.Key.FACE_V_MIRROR,isChecked);
+        });
+
+        int similarThreshold = SpUtils.getIntOrDef(Constants.Key.SIMILAR_THRESHOLD,Constants.Default.SIMILAR_THRESHOLD);
+        EditText edtSimilar = findViewById(R.id.edt_similar_threshold);
+        findViewById(R.id.btn_set_similar_threshold).setOnClickListener(v -> {
+            String inputSimilar = edtSimilar.getText().toString();
+            if(TextUtils.isEmpty(inputSimilar)){
+                edtSimilar.setText(similarThreshold + "");
+                return;
+            }
+
+            int i = Integer.parseInt(inputSimilar);
+            SpUtils.saveInt(Constants.Key.SIMILAR_THRESHOLD,i);
+            edtSimilar.setText(similarThreshold + "");
+        });
+
+        Switch swLive = findViewById(R.id.sw_live);
+        boolean liveEnabled = SpUtils.getBoolean(Constants.Key.LIVE_ENABLED, Constants.Default.LIVE_ENABLED);
+        swLive.setChecked(liveEnabled);
+
+        Button btnAngle = findViewById(R.id.btn_setAngle);
+        int cameraAngle = SpUtils.getIntOrDef(Constants.Key.RGB_CAMERA_ANGLE,Constants.Default.RGB_CAMERA_ANGLE);
+        btnAngle.setText( "角度：" + cameraAngle);
+        btnAngle.setOnClickListener(v -> {
+            int angle = SpUtils.getIntOrDef(Constants.Key.RGB_CAMERA_ANGLE,Constants.Default.RGB_CAMERA_ANGLE);
+            switch (angle) {
+                case 0:
+                    angle = 90;
+                    break;
+                case 90:
+                    angle = 180;
+                    break;
+                case 180:
+                    angle = 270;
+                    break;
+                case 270:
+                default:
+                    angle = 0;
+                    break;
+            }
+            SpUtils.saveInt(Constants.Key.RGB_CAMERA_ANGLE,angle);
+            btnAngle.setText( "角度：" + angle);
+            EventBus.getDefault().post(new DisplayOrientationEvent());
         });
     }
 
@@ -145,21 +204,6 @@ public class SettingActivity extends BaseActivity {
 
         //摄像头模式
         tvCamera.setText("【" + (Config.getCameraType() == Config.CAMERA_AUTO ? "自动" : Config.getCameraType() == Config.CAMERA_BACK? "后置" : "前置") + "，分辨率：" + CameraSettings.getCameraPreviewWidth()+"*" + CameraSettings.getCameraPreviewHeight() + "】" );
-
-        //人脸框镜像
-        final boolean mirror = SpUtils.isMirror();
-        cbMirror.setChecked(mirror);
-        cbMirror.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SpUtils.setMirror(isChecked);
-                FaceBoxUtil.setIsMirror();
-            }
-        });
-
-        //摄像头角度
-        int angle = SpUtils.getInt(SpUtils.CAMERA_ANGLE);
-        btnAngle.setText("角度：" + angle);
 
         setListSize();
     }
@@ -229,7 +273,7 @@ public class SettingActivity extends BaseActivity {
             }
         }
 
-        spnCameraSize.setAdapter(new SizeAdapter(sizeBeanList));
+        /*spnCameraSize.setAdapter(new SizeAdapter(sizeBeanList));
         Drawable drawable = getResources().getDrawable(R.drawable.shape_spinner_drop);
         spnCameraSize.setPopupBackgroundDrawable(drawable);
         spnCameraSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -247,7 +291,7 @@ public class SettingActivity extends BaseActivity {
 
             }
         });
-        spnCameraSize.setSelection(index);
+        spnCameraSize.setSelection(index);*/
     }
 
     class SizeAdapter extends BaseAdapter{
@@ -299,7 +343,7 @@ public class SettingActivity extends BaseActivity {
     /**
      * ====功能区==================================================================================================
      */
-    public void setAngle(final View view) {
+    /*public void setAngle(final View view) {
         int anInt = SpUtils.getInt(SpUtils.CAMERA_ANGLE);
         if(anInt == CameraSettings.ROTATION_0){
             anInt = CameraSettings.ROTATION_90;
@@ -313,7 +357,7 @@ public class SettingActivity extends BaseActivity {
         ((Button)view).setText("角度：" + anInt);
         SpUtils.saveInt(SpUtils.CAMERA_ANGLE, anInt);
         CameraSettings.setCameraDisplayRotation(anInt);
-    }
+    }*/
 
     public void rebootDevice(View view) {
         showAlert("设备将重启，是否继续？", new DialogInterface.OnClickListener() {

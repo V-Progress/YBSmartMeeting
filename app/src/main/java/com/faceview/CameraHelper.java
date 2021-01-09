@@ -11,6 +11,8 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 
+import com.yunbiao.yb_smart_meeting.utils.SpUtils;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -335,11 +337,15 @@ public class CameraHelper implements Camera.PreviewCallback {
     };
 
     public void changeDisplayOrientation(int rotation) {
+        Log.e(TAG, "changeDisplayOrientation11111: " + rotation);
+        this.rotation = rotation;
+        displayOrientation = getCameraOri(rotation);
+
         if (mCamera != null) {
-            this.rotation = rotation;
-            displayOrientation = getCameraOri(rotation);
+            Log.e(TAG, "changeDisplayOrientation222222: " + displayOrientation);
             mCamera.setDisplayOrientation(displayOrientation);
             if (cameraListener != null) {
+                Log.e(TAG, "changeDisplayOrientation333333: " + displayOrientation);
                 cameraListener.onCameraConfigurationChanged(mCameraId, displayOrientation);
             }
         }

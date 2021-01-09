@@ -15,8 +15,16 @@
             android:layout_marginTop="30dp"
             android:src="@mipmap/logo_smartiot" />
 
+        <ImageView
+            android:layout_margin="6dp"
+            android:layout_alignParentRight="true"
+            android:id="@+id/iv_setting"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/setting_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
 
-        <TextClock
+        <!--<TextClock
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -24,7 +32,7 @@
             android:layout_marginRight="30dp"
             android:format24Hour="yyyy/MM/dd HH:mm"
             android:textColor="@color/white"
-            android:textSize="32px" />
+            android:textSize="32px" />-->
 
         <TextView
             android:id="@+id/tv_roomName"
@@ -37,6 +45,13 @@
             android:textColor="@color/white"
             android:textSize="80dp" />
 
+        <com.faceview.FaceView
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="120dp"
+            android:visibility="invisible"
+            android:id="@+id/face_view"
+            android:layout_width="320dp"
+            android:layout_height="180dp"/>
 
         <LinearLayout
             android:id="@+id/ll_main"
@@ -47,6 +62,7 @@
             android:orientation="vertical">
 
             <RelativeLayout
+                android:visibility="invisible"
                 android:id="@+id/rl_main_will"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -59,7 +75,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="106dp"
                     android:gravity="center"
-                    android:text="即将开始"
                     android:textColor="@color/white"
                     android:textSize="60dp" />
 
@@ -82,7 +97,6 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="10dp"
                         android:gravity="center"
-                        android:text="18:00 - 19:00"
                         android:textColor="@color/white"
                         android:textSize="16dp" />
 
@@ -98,7 +112,6 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="10dp"
                         android:gravity="center"
-                        android:text="张阳阳"
                         android:textColor="@color/white"
                         android:textSize="16dp" />
 
@@ -114,10 +127,15 @@
                         android:layout_height="match_parent"
                         android:layout_marginLeft="10dp"
                         android:gravity="center"
-                        android:text="财务部年度总结会议"
                         android:textColor="@color/white"
                         android:textSize="16dp" />
                 </LinearLayout>
+
+                <com.wang.avi.AVLoadingIndicatorView
+                    android:id="@+id/av_loading"
+                    android:layout_centerInParent="true"
+                    android:layout_width="320dp"
+                    android:layout_height="180dp"/>
             </RelativeLayout>
 
 
@@ -244,11 +262,6 @@
                 android:layout_marginTop="30dp" />
         </RelativeLayout>
 
-        <com.faceview.FaceView
-            android:visibility="invisible"
-            android:id="@+id/face_view"
-            android:layout_width="320dp"
-            android:layout_height="180dp"/>
     </RelativeLayout>
 
 </FrameLayout>

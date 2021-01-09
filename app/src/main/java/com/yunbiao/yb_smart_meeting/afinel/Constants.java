@@ -59,6 +59,22 @@ public class Constants {
         String DEV_XMPP_PORT = "5222";
         String DEV_SUFFIX = "/";
     }
+
+    public interface Key{
+        String FACE_H_MIRROR = "faceHorizontalMirror";
+        String FACE_V_MIRROR = "faceVerticalMirror";
+        String LIVE_ENABLED = "liveEnabled";
+        String RGB_CAMERA_ANGLE = "cameraAngle";
+        String SIMILAR_THRESHOLD = "similarThreshold";
+    }
+
+    public static class Default{
+        public static boolean FACE_H_MIRROR = true;
+        public static boolean FACE_V_MIRROR = false;
+        public static boolean LIVE_ENABLED = true;
+        public static int RGB_CAMERA_ANGLE = 0;
+        public static int SIMILAR_THRESHOLD = 70;
+    }
 }
 
 

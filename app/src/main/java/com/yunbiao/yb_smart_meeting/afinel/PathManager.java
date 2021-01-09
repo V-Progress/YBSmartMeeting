@@ -12,7 +12,7 @@ public class PathManager {
 
     public static String DATA_PATH = "data/";//公司数据
     public static String INFO_PATH = "info/";//公司简介
-    public static String ADS_PATH = "ads/";//广告路径
+    public static String ADS_PATH = "ads";//广告路径
     public static String HEAD_PATH = "photo";//照片路径
     public static String FEATURE_PATH = "features";//照片路径
     public static String RECORD_PATH = "record/";//实时人脸记录缓存
@@ -30,7 +30,7 @@ public class PathManager {
 
 
         //创建头像目录
-        File headFile = new File(companyFile, HEAD_PATH);
+        File headFile = new File(companyFile, "photo");
         if(headFile == null || !headFile.exists()){
             headFile.mkdirs();
         }
@@ -39,7 +39,7 @@ public class PathManager {
 
 
         //创建特征目录
-        File featureFile = new File(companyFile,FEATURE_PATH);
+        File featureFile = new File(companyFile,"features");
         if(featureFile == null || !featureFile.exists()){
             featureFile.mkdirs();
         }
@@ -47,7 +47,7 @@ public class PathManager {
         Log.e(TAG, "init: " + FEATURE_PATH + " --- " + featureFile.exists());
 
         //创建广告目录
-        File adsFile = new File(companyFile, ADS_PATH);
+        File adsFile = new File(companyFile, "ads");
         if(adsFile == null || !adsFile.exists()){
             adsFile.mkdirs();
         }

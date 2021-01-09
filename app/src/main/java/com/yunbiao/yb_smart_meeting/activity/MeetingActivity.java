@@ -1,6 +1,7 @@
 package com.yunbiao.yb_smart_meeting.activity;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -69,6 +70,7 @@ public class MeetingActivity extends BaseGpioActivity {
     private AlertDialog bindAlertDialog;
     private ScaleAnimation showCameraAnim;
     private ScaleAnimation dismissCameraAnim;
+    private View ivSetting;
 
     @Override
     protected int getPortraitLayout() {
@@ -83,7 +85,10 @@ public class MeetingActivity extends BaseGpioActivity {
     @Override
     protected void initView() {
         APP.setActivity(this);
-
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        ivSetting = findViewById(R.id.iv_setting);
         loading = findViewById(R.id.av_loading);
         tv_roomName = findViewById(R.id.tv_roomName);
         tv_meetTime_will = findViewById(R.id.tv_meetTime_will);
@@ -101,6 +106,7 @@ public class MeetingActivity extends BaseGpioActivity {
         faceView = find(R.id.face_view);
 
         rl_meetings.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        ivSetting.setOnClickListener(v -> startActivity(new Intent(this,SettingActivity.class)));
 
         faceView.setCallback(faceCallback);
         KDXFSpeechManager.instance().init(this);
@@ -424,6 +430,14 @@ public class MeetingActivity extends BaseGpioActivity {
         Log.e(TAG, "update: 收到签到更新事件" + event.toString());
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void update(DisplayOrientationEvent event) {
+        Log.e(TAG, "update: 收到摄像头更新事件");
+        if (faceView != null) {
+            faceView.changeAngle();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -445,6 +459,9 @@ public class MeetingActivity extends BaseGpioActivity {
         super.onDestroy();
         if (faceView != null) {
             faceView.destory();
+        }
+        if(EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().unregister(this);
         }
         APP.stopXMPP();
         LocateManager.instance().destory();

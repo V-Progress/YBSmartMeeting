@@ -29,9 +29,8 @@ public abstract class BaseGpioActivity extends BaseActivity {
 
         smdt = APP.getSmdt();
         xhApi = APP.getXHApi();
-        EventBus.getDefault().register(this);
         if(smdt == null && xhApi == null){
-            UIUtils.showShort(this,"无法控制门禁，请检查板卡型号");
+//            UIUtils.showShort(this,"无法控制门禁，请检查板卡型号");
         }
     }
 
@@ -194,6 +193,5 @@ public abstract class BaseGpioActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 }

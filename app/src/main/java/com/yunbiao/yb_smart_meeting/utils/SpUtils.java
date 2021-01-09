@@ -135,6 +135,19 @@ public class SpUtils {
         return defValue;
     }
 
+    public static void saveFloat(String key,float value){
+        if(sp != null){
+            sp.edit().putFloat(key,value).commit();
+        }
+    }
+
+    public static float getFloat(String key, float defValue){
+        if(sp != null){
+            return sp.getFloat(key,defValue);
+        }
+        return defValue;
+    }
+
 //    public static void saveString(Context context, String key, String value) {
 //        if (sp == null)
 //            sp = context.getSharedPreferences(SP_NAME, 0);

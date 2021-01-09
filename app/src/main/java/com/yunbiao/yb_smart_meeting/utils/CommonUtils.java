@@ -10,6 +10,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -46,6 +47,115 @@ import java.util.regex.Pattern;
  */
 public class CommonUtils {
     private static final String TAG = "CommonUtils";
+
+    /**
+     * 判断是不是板子的来源厂家
+     *
+     * @return 0其他（视美泰 默认）  5是 10寸人脸平板
+     */
+    public static Integer getBroadType() {
+        String broad_info = SpUtils.getStr(SpUtils.BOARD_INFO);
+        if (TextUtils.isEmpty(broad_info)) {
+            broad_info = saveBroadInfo();
+            SpUtils.saveStr(SpUtils.BOARD_INFO, broad_info);
+        }
+        Log.e(TAG, "getBroadType: " + broad_info);
+        if(broad_info.contains("wxl")){//视美泰
+            return 0;
+        } else if (broad_info.contains("lxr") || broad_info.contains("xx@xx")) {//亿莱顿
+            return 5;
+        } else if (broad_info.contains("HARRIS") || broad_info.contains("silence") || broad_info.contains("@ys")) {//亿晟
+            return 4;
+        } else if(broad_info.contains("even@bnxd")){
+            return 6;
+        } else {
+            return 5;
+        }
+    }
+
+    public static String getBroadType2() {
+        String broad_info = SpUtils.getStr(SpUtils.BOARD_INFO);
+        if (TextUtils.isEmpty(broad_info)) {
+            broad_info = saveBroadInfo();
+            SpUtils.saveStr(SpUtils.BOARD_INFO, broad_info);
+        }
+        Log.e(TAG, "getBroadType2: " + broad_info);
+        if (broad_info.contains("wxl")) {
+            return "SMT";//视美泰
+        } else if (broad_info.contains("lxr") || broad_info.contains("xx@xx")) {
+            return "LXR";//亿莱顿
+        } else if (broad_info.contains("harris") || broad_info.contains("silence")) {
+            return "HARRIS";//亿晟
+        } else if (broad_info.contains("will")) {
+            return "WILL";//土耳其机器板子
+        } else {
+            return "HARRIS";//亿晟
+        }
+//        return broad_info;
+    }
+
+    public static String getWifiMac(){
+        String macAddress = "";
+        WifiManager wifiManager = (WifiManager) APP.getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+
+        WifiInfo info = wifiManager.getConnectionInfo();
+        if (info != null) {
+            macAddress = info.getMacAddress();
+            Log.d(TAG,"info mac：" + macAddress);
+        }
+
+        if (TextUtils.isEmpty(macAddress) || macAddress.equals("02:00:00:00:00:00")) {
+            macAddress = CommonUtils.getSixOSMac();
+            Log.d(TAG,"getSixOSMac：" + macAddress);
+        }
+
+        if (TextUtils.isEmpty(macAddress) || macAddress.equals("02:00:00:00:00:00")) {//6.0及以上系统获取的mac错误
+            macAddress = CommonUtils.getMacAddr();
+            Log.d(TAG,"getSixOSMac：" + macAddress);
+        }
+
+        //还获取不到就读本地
+        if(TextUtils.isEmpty(macAddress) || macAddress.equals("02:00:00:00:00:00")){
+            macAddress = NetworkUtils.getLocalMacAddress();
+        }
+
+        if(!TextUtils.isEmpty(macAddress)){
+            macAddress = macAddress.toUpperCase();
+        }
+
+        return macAddress;
+    }
+
+    // Android 6.0以上获取WiFi的Mac地址
+    //由于android6.0对wifi mac地址获取进行了限制，用原来的方法获取会获取到02:00:00:00:00:00这个固定地址。
+    //但是可以通过读取节点进行获取"/sys/class/net/wlan0/address"
+    public static String getMacAddr() {
+        try {
+            return loadFileAsString("/sys/class/net/wlan0/address")
+                    .toUpperCase().substring(0, 17);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private static String loadFileAsString(String filePath)
+            throws java.io.IOException {
+        StringBuffer fileData = new StringBuffer(1000);
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        char[] buf = new char[1024];
+        int numRead = 0;
+        while ((numRead = reader.read(buf)) != -1) {
+            String readData = String.valueOf(buf, 0, numRead);
+            fileData.append(readData);
+        }
+        reader.close();
+        return fileData.toString();
+    }
+
 
     @SuppressLint("HardwareIds")
     public static String getMacAddress() {
@@ -376,24 +486,6 @@ public class CommonUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * 判断是不是板子的来源厂家
-     *
-     * @return 0其他（国威）  1中恒  2深圳鸿世达科技  3亿晟科技  4小百合  5建益达
-     */
-    public static Integer getBroadType() {
-        String broad_info = SpUtils.getStr(SpUtils.BOARD_INFO);
-        if(TextUtils.isEmpty(broad_info)){
-            broad_info = saveBroadInfo();
-            SpUtils.saveStr(SpUtils.BOARD_INFO,broad_info);
-        }
-        if (broad_info.contains("even@bnxd")){
-            return Config.DEVICE_MEETING_ACCESS;
-        } else {
-            return Config.DEVICE_MEETING;
-        }
     }
 
     /**
